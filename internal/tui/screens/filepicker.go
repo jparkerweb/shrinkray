@@ -359,7 +359,7 @@ func (m FilePickerModel) View() string {
 	if m.useText {
 		b.WriteString(style.KeyHintStyle().Render("[Tab] Switch to browser  [Enter] Confirm  [Esc] Back"))
 	} else {
-		hints := "[Tab] Path input  [Enter] Select  [Space] Multi-select  [Esc] Back"
+		hints := "[←/Backspace] Up dir  [Enter] Select  [Space] Multi-select  [Tab] Path input  [Esc] Back"
 		b.WriteString(style.KeyHintStyle().Render(hints))
 	}
 
