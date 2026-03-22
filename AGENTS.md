@@ -8,7 +8,7 @@ This file provides guidance to AI coding agents like Claude Code (claude.ai/code
 
 **shrinkray** is a cross-platform CLI video compression tool powered by FFmpeg and built with Go using Charm's TUI libraries (Bubble Tea v2, Bubbles v2, Lip Gloss v2, Huh v2). It provides a wizard-style TUI that walks users through video compression with smart presets, hardware acceleration auto-detection, and batch processing. Tagline: "Less bytes, same vibes."
 
-- **Language:** Go 1.23.0+
+- **Language:** Go 1.25.0+
 - **External runtime dependency:** FFmpeg/FFprobe (not bundled — detected at runtime)
 - **Platforms:** Windows, macOS, Linux (single static binary via GoReleaser)
 
@@ -32,7 +32,7 @@ Details: [Architecture](./.agents-docs/AGENTS-architecture.md)
 
 ## Technology Stack & Dependencies
 
-Go with the Charm ecosystem (Bubble Tea v2, Bubbles v2, Lip Gloss v2, Huh v2, Fang), plus go-ffprobe v2 and YAML v3. Build tooling: GoReleaser, Make, golangci-lint.
+Go with the Charm ecosystem (Bubble Tea v2, Bubbles v2, Lip Gloss v2, Fang), plus go-ffprobe v2 and YAML v3. Build tooling: GoReleaser, Make, golangci-lint.
 
 Details: [Technology Stack](./.agents-docs/AGENTS-technology-stack.md)
 
@@ -40,7 +40,7 @@ Details: [Technology Stack](./.agents-docs/AGENTS-technology-stack.md)
 
 ## CLI Interface & Flags
 
-shrinkray supports interactive TUI mode (default) and headless mode (`--no-tui`). Subcommands: `presets`, `probe`, `version`, `help`. Extensive encoding flags for headless/scripting use.
+shrinkray supports interactive TUI mode (default) and headless mode (`--no-tui`). Subcommands: `presets`, `probe`, `version`, `completion`. Extensive encoding flags for headless/scripting use.
 
 Details: [CLI Interface](./.agents-docs/AGENTS-cli-interface.md)
 
@@ -56,9 +56,26 @@ Details: [Preset System](./.agents-docs/AGENTS-preset-system.md)
 
 ## TUI Screens & Styling
 
-11 screens in the wizard flow (splash → filepicker → info → presets → advanced → preview → encoding → complete, plus 3 batch screens). Two color themes: "Neon Dusk" (default) and "Electric Sunset". Switchable at runtime with Ctrl+T.
+11 screens in the wizard flow (splash → filepicker → info → presets → advanced → preview → encoding → complete, plus 3 batch screens), plus a help overlay (`?` key). Two color themes: "Neon Dusk" (default) and "Electric Sunset". Switchable at runtime with Ctrl+T.
 
 Details: [TUI Screens & Styling](./.agents-docs/AGENTS-tui-screens.md)
+
+---
+
+## Git Commit Messages
+
+Use this format for all commits:
+
+```
+<description>
+
+<JIRA-Ticket-ID>
+AI Assisted
+```
+
+- **JIRA ticket ID**: Derive from the branch name format `<prefix>/<TICKET-ID>-description` (uppercase project key + hyphen + integer, e.g., `PCWEB-10968`). Include the ticket ID on its own line after a blank line.
+- **AI Assisted**: Always the last line, on its own line directly after the ticket ID.
+- If no JIRA ticket is identifiable from the branch name, omit the ticket ID line but still include `AI Assisted` as the last line.
 
 ---
 

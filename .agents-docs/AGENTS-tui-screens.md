@@ -17,13 +17,14 @@ Splash → FilePicker → Info → Presets → Advanced → Preview → Encoding
 | 2 | FilePicker | `filepicker.go` | File browser + path input, batch multi-select |
 | 3 | Info | `info.go` | Source video metadata card (resolution, codec, duration, etc.) |
 | 4 | Presets | `presets.go` | Preset grid with smart recommendations highlighted |
-| 5 | Advanced | `advanced.go` | Full options form via Huh (codec, CRF, resolution, audio, etc.) |
+| 5 | Advanced | `advanced.go` | Full options form (codec, CRF, resolution, audio, etc.) |
 | 6 | Preview | `preview.go` | Before/after comparison with estimated output size |
 | 7 | Encoding | `encoding.go` | Real-time progress bar, ETA, speed, FPS, bitrate |
 | 8 | Complete | `complete.go` | Results summary with bar chart, savings percentage |
 | 9a | BatchQueue | `batch_queue.go` | File list with per-file status, preset assignment |
 | 9b | BatchProgress | `batch_progress.go` | Multi-file progress with current + overall bars |
 | 9c | BatchComplete | `batch_complete.go` | Batch results table with totals |
+| — | Help Overlay | `help.go` | Global/context-sensitive key bindings (triggered by `?`, composited on current screen) |
 
 ## Persistent UI Elements
 

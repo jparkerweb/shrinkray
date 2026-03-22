@@ -40,6 +40,6 @@ go mod download     # Download dependencies
 
 ## Notes
 
-- Go 1.23.0+ is required (Huh v2 dependency)
+- Go 1.25.0+ is required
 - FFmpeg and FFprobe must be installed and on PATH for runtime functionality
 - The Makefile is the canonical source for development commands — check it for any additions

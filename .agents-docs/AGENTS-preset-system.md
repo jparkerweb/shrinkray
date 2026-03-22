@@ -9,12 +9,12 @@
 
 | Key | Name | Codec | CRF | Speed | Resolution | Audio |
 |-----|------|-------|-----|-------|------------|-------|
-| lossless | Lossless | H.265 | 0 | slow | original | copy |
+| lossless | Lossless | H.264 | 0 | slow | original | copy |
+| ultra | Ultra Quality | H.265 | 16 | slow | original | AAC 256k |
 | high | High Quality | H.265 | 20 | medium | original | AAC 192k |
-| balanced | Balanced | H.265 | 26 | medium | original | AAC 128k |
-| low | Low Quality | H.265 | 32 | fast | original | AAC 96k |
-| tiny | Tiny | H.265 | 36 | veryfast | 720p cap | AAC 64k |
-| potato | Potato | H.264 | 40 | ultrafast | 480p cap | AAC 48k |
+| balanced | Balanced | H.265 | 23 | medium | original | AAC 128k |
+| compact | Compact | H.265 | 28 | medium | 720p cap | AAC 96k |
+| tiny | Tiny | H.264 | 32 | fast | 480p cap | AAC 64k |
 
 ## Purpose-Driven Presets (5)
 

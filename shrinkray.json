@@ -1,0 +1,38 @@
+{
+  "version": "0.0.0",
+  "description": "Cross-platform CLI video compression tool powered by FFmpeg. Less bytes, same vibes.",
+  "homepage": "https://github.com/jparkerweb/shrinkray",
+  "license": "MIT",
+  "architecture": {
+    "64bit": {
+      "url": "https://github.com/jparkerweb/shrinkray/releases/download/v0.0.0/shrinkray_0.0.0_windows_amd64.zip",
+      "hash": "PLACEHOLDER_WINDOWS_AMD64_SHA256"
+    },
+    "arm64": {
+      "url": "https://github.com/jparkerweb/shrinkray/releases/download/v0.0.0/shrinkray_0.0.0_windows_arm64.zip",
+      "hash": "PLACEHOLDER_WINDOWS_ARM64_SHA256"
+    }
+  },
+  "bin": "shrinkray.exe",
+  "checkver": {
+    "github": "https://github.com/jparkerweb/shrinkray"
+  },
+  "autoupdate": {
+    "architecture": {
+      "64bit": {
+        "url": "https://github.com/jparkerweb/shrinkray/releases/download/v$version/shrinkray_$version_windows_amd64.zip"
+      },
+      "arm64": {
+        "url": "https://github.com/jparkerweb/shrinkray/releases/download/v$version/shrinkray_$version_windows_arm64.zip"
+      }
+    },
+    "hash": {
+      "url": "https://github.com/jparkerweb/shrinkray/releases/download/v$version/checksums.txt"
+    }
+  },
+  "suggest": {
+    "ffmpeg": {
+      "source": "main"
+    }
+  }
+}
