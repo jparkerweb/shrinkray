@@ -3,9 +3,7 @@ package engine
 import (
 	"fmt"
 	"log/slog"
-	"os/exec"
 	"path/filepath"
-	"runtime"
 )
 
 // OpenFolder opens the file manager showing the given path.
@@ -16,17 +14,7 @@ func OpenFolder(path string) error {
 		absPath = path
 	}
 
-	var cmd *exec.Cmd
-
-	switch runtime.GOOS {
-	case "windows":
-		cmd = exec.Command("explorer", fmt.Sprintf("/select,%s", absPath))
-	case "darwin":
-		cmd = exec.Command("open", "-R", absPath)
-	default: // linux and other unix
-		dir := filepath.Dir(absPath)
-		cmd = exec.Command("xdg-open", dir)
-	}
+	cmd := openFolderCmd(absPath)
 
 	if err := cmd.Start(); err != nil {
 		slog.Warn("failed to open folder", "path", absPath, "error", err)
@@ -39,23 +27,4 @@ func OpenFolder(path string) error {
 	}()
 
 	return nil
-}
-
-// OpenFolderCommand returns the command that would be used to open the folder,
-// without executing it. Useful for testing.
-func OpenFolderCommand(path string) (name string, args []string) {
-	absPath, err := filepath.Abs(path)
-	if err != nil {
-		absPath = path
-	}
-
-	switch runtime.GOOS {
-	case "windows":
-		return "explorer", []string{fmt.Sprintf("/select,%s", absPath)}
-	case "darwin":
-		return "open", []string{"-R", absPath}
-	default:
-		dir := filepath.Dir(absPath)
-		return "xdg-open", []string{dir}
-	}
 }

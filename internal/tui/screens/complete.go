@@ -2,6 +2,8 @@ package screens
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -14,10 +16,13 @@ import (
 
 // CompleteModel is the model for the completion screen.
 type CompleteModel struct {
+	inputPath   string
 	outputPath  string
 	inputSize   int64
 	outputSize  int64
 	elapsedTime time.Duration
+	replaced    bool   // true after "delete original" was performed
+	errMsg      string // error from replace operation
 	width       int
 	height      int
 }
@@ -28,11 +33,13 @@ func NewCompleteModel() CompleteModel {
 }
 
 // SetResults sets the encoding results for display.
-func (m *CompleteModel) SetResults(outputPath string, inputSize, outputSize int64, elapsed time.Duration) {
+func (m *CompleteModel) SetResults(inputPath, outputPath string, inputSize, outputSize int64, elapsed time.Duration) {
+	m.inputPath = inputPath
 	m.outputPath = outputPath
 	m.inputSize = inputSize
 	m.outputSize = outputSize
 	m.elapsedTime = elapsed
+	m.replaced = false
 }
 
 // Init returns nil.
@@ -48,6 +55,15 @@ func (m CompleteModel) Update(msg tea.Msg) (style.ScreenModel, tea.Cmd) {
 		m.height = msg.Height
 		return m, nil
 
+	case replaceResultMsg:
+		if msg.err != nil {
+			m.errMsg = msg.err.Error()
+		} else {
+			m.replaced = true
+			m.outputPath = msg.newPath
+		}
+		return m, nil
+
 	case tea.KeyPressMsg:
 		switch msg.String() {
 		case "o":
@@ -55,6 +71,15 @@ func (m CompleteModel) Update(msg tea.Msg) (style.ScreenModel, tea.Cmd) {
 				return m, func() tea.Msg {
 					_ = engine.OpenFolder(m.outputPath)
 					return nil
+				}
+			}
+			return m, nil
+		case "d":
+			if m.inputPath != "" && m.outputPath != "" && !m.replaced {
+				inputPath := m.inputPath
+				outputPath := m.outputPath
+				return m, func() tea.Msg {
+					return replaceOriginal(inputPath, outputPath)
 				}
 			}
 			return m, nil
@@ -74,6 +99,34 @@ func (m CompleteModel) Update(msg tea.Msg) (style.ScreenModel, tea.Cmd) {
 	}
 
 	return m, nil
+}
+
+// replaceResultMsg is the result of deleting the original and renaming.
+type replaceResultMsg struct {
+	newPath string
+	err     error
+}
+
+// replaceOriginal deletes the original file and renames the output to the
+// original's filename (preserving the output's extension if it differs).
+func replaceOriginal(inputPath, outputPath string) replaceResultMsg {
+	// Build the target path: original's directory + original's base name + output's extension
+	inputDir := filepath.Dir(inputPath)
+	inputBase := strings.TrimSuffix(filepath.Base(inputPath), filepath.Ext(inputPath))
+	outputExt := filepath.Ext(outputPath)
+	targetPath := filepath.Join(inputDir, inputBase+outputExt)
+
+	// Delete the original
+	if err := os.Remove(inputPath); err != nil {
+		return replaceResultMsg{err: fmt.Errorf("failed to delete original: %w", err)}
+	}
+
+	// Rename output to the target path
+	if err := os.Rename(outputPath, targetPath); err != nil {
+		return replaceResultMsg{err: fmt.Errorf("deleted original but failed to rename output: %w", err)}
+	}
+
+	return replaceResultMsg{newPath: targetPath}
 }
 
 // View renders the completion screen.
@@ -141,10 +194,19 @@ func (m CompleteModel) View() string {
 
 	// Elapsed time
 	b.WriteString(style.MutedStyle().Render(fmt.Sprintf("Time: %s", formatDurationShort(m.elapsedTime))))
-	b.WriteString("\n\n")
+	b.WriteString("\n")
 
-	// Action hints
-	b.WriteString(style.KeyHintStyle().Render("[o] Open folder  [r] Re-encode  [n] New file  [q] Quit"))
+	// Replace status
+	if m.replaced {
+		b.WriteString("\n")
+		b.WriteString(style.SuccessStyle().Render("Original deleted and output renamed."))
+		b.WriteString("\n")
+	}
+	if m.errMsg != "" {
+		b.WriteString("\n")
+		b.WriteString(style.ErrorStyle().Render("Error: " + m.errMsg))
+		b.WriteString("\n")
+	}
 
 	return b.String()
 }

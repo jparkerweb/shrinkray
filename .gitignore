@@ -42,6 +42,7 @@ ffmpeg2pass-*.log.mbtree
 # Specs
 specs/
 specs--completed/
+.tmp/
 
 # Environment
 .env

@@ -69,12 +69,30 @@ func TestParseFFmpegError_UnknownPattern(t *testing.T) {
 }
 
 func TestParseFFmpegError_LongStderrTruncated(t *testing.T) {
-	stderr := strings.Repeat("a", 300)
+	stderr := strings.Repeat("a", 600)
 	result := ParseFFmpegError(stderr)
-	if len(result) > 210 { // 200 + "..."
+	if len(result) > 510 { // 500 + "..."
 		t.Errorf("expected truncated output, got length %d", len(result))
 	}
 	if !strings.HasSuffix(result, "...") {
 		t.Error("expected truncated output to end with '...'")
+	}
+}
+
+func TestParseFFmpegError_ReturnsLastLines(t *testing.T) {
+	// Simulate FFmpeg stderr with banner at top and error at bottom
+	stderr := "ffmpeg version 8.0 Copyright (c) 2000-2025\n" +
+		"built with gcc 15.2.0\n" +
+		"configuration: --enable-gpl\n" +
+		"libavutil 59.40.100\n" +
+		"\n" +
+		"Input #0, matroska\n" +
+		"  Duration: 00:24:00\n" +
+		"Stream mapping:\n" +
+		"Error opening output file: Permission denied\n"
+	result := ParseFFmpegError(stderr)
+	// Should match the "permission denied" pattern
+	if !strings.Contains(result, "permissions") {
+		t.Errorf("expected permission message, got %q", result)
 	}
 }

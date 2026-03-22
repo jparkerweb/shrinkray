@@ -3,12 +3,14 @@ package screens
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"os"
 	"strings"
 	"time"
 
 	tea "charm.land/bubbletea/v2"
 	"charm.land/bubbles/v2/progress"
+	lipgloss "charm.land/lipgloss/v2"
 
 	"github.com/jparkerweb/shrinkray/internal/engine"
 	"github.com/jparkerweb/shrinkray/internal/tui/style"
@@ -179,6 +181,18 @@ func (m EncodingModel) Update(msg tea.Msg) (style.ScreenModel, tea.Cmd) {
 		return m, nil
 
 	case messages.EncodeErrorMsg:
+		// If a hardware encoder failed, fall back to software encoding
+		if m.opts != nil && m.opts.HWEncoder != "" {
+			slog.Info("hardware encoder failed, falling back to software",
+				"encoder", m.opts.HWEncoder,
+				"error", msg.Err,
+			)
+			fallbackOpts := *m.opts
+			fallbackOpts.HWEncoder = ""
+			m.logLines = append(m.logLines, "HW encoder failed — retrying with software...")
+			m.update = engine.ProgressUpdate{}
+			return m, m.StartEncode(fallbackOpts)
+		}
 		m.done = true
 		m.errMsg = msg.Err.Error()
 		return m, nil
@@ -212,32 +226,69 @@ func readOneProgress(ch <-chan engine.ProgressUpdate, tempPath, outputPath strin
 
 		update, ok := <-ch
 		if !ok {
+			_ = os.Remove(tempPath)
 			return messages.EncodeErrorMsg{Err: fmt.Errorf("progress channel closed unexpectedly")}
 		}
 
 		if update.Error != nil {
+			_ = os.Remove(tempPath)
 			return messages.EncodeErrorMsg{Err: update.Error}
 		}
 
 		if update.Done {
-			// Move temp file to final output
-			if err := os.Rename(tempPath, outputPath); err != nil {
-				return messages.EncodeErrorMsg{Err: fmt.Errorf("failed to move output: %w", err)}
+			// Verify temp file exists and has content before moving
+			stderrHint := ""
+			if update.Stderr != "" {
+				stderrHint = "\n\n  FFmpeg output:\n  " + stderrTail(update.Stderr, 10)
 			}
 
-			var outputSize int64
-			if stat, err := os.Stat(outputPath); err == nil {
-				outputSize = stat.Size()
+			tempStat, err := os.Stat(tempPath)
+			if err != nil {
+				return messages.EncodeErrorMsg{Err: fmt.Errorf(
+					"output file not found after encoding\n  expected: %s\n  cause: %v%s",
+					tempPath, err, stderrHint,
+				)}
+			}
+			if tempStat.Size() == 0 {
+				_ = os.Remove(tempPath)
+				return messages.EncodeErrorMsg{Err: fmt.Errorf(
+					"encoding produced an empty file — FFmpeg may have failed silently\n  temp: %s%s",
+					tempPath, stderrHint,
+				)}
+			}
+
+			// Move temp file to final output
+			if err := os.Rename(tempPath, outputPath); err != nil {
+				return messages.EncodeErrorMsg{Err: fmt.Errorf(
+					"failed to move output\n  from: %s\n    to: %s\n  cause: %v",
+					tempPath, outputPath, err,
+				)}
 			}
 
 			return messages.EncodeCompleteMsg{
 				OutputPath: outputPath,
-				OutputSize: outputSize,
+				OutputSize: tempStat.Size(),
 			}
 		}
 
 		return messages.EncodeProgressMsg{Update: update}
 	}
+}
+
+// stderrTail returns the last n non-empty lines of stderr for diagnostics.
+func stderrTail(stderr string, n int) string {
+	lines := strings.Split(strings.TrimSpace(stderr), "\n")
+	// Filter out empty lines
+	var nonEmpty []string
+	for _, l := range lines {
+		if trimmed := strings.TrimSpace(l); trimmed != "" {
+			nonEmpty = append(nonEmpty, trimmed)
+		}
+	}
+	if len(nonEmpty) > n {
+		nonEmpty = nonEmpty[len(nonEmpty)-n:]
+	}
+	return strings.Join(nonEmpty, "\n  ")
 }
 
 // View renders the encoding progress screen.
@@ -249,7 +300,12 @@ func (m EncodingModel) View() string {
 	b.WriteString("\n")
 
 	if m.errMsg != "" {
-		b.WriteString(style.ErrorStyle().Render("Error: " + m.errMsg))
+		errText := "Error: " + m.errMsg
+		maxW := m.width
+		if maxW <= 0 {
+			maxW = 80
+		}
+		b.WriteString(style.ErrorStyle().Width(maxW).Render(errText))
 		b.WriteString("\n\n")
 		b.WriteString(style.KeyHintStyle().Render("[Esc] Back"))
 		return b.String()
@@ -303,12 +359,12 @@ func (m EncodingModel) View() string {
 		boxes = append(boxes, style.StatBoxStyle().Render(fmt.Sprintf("ETA\n%s", formatDurationShort(m.update.ETA))))
 
 		if m.width >= 80 {
-			b.WriteString(strings.Join(boxes, " "))
+			b.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, boxes...))
 		} else {
 			mid := len(boxes) / 2
-			b.WriteString(strings.Join(boxes[:mid], " "))
+			b.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, boxes[:mid]...))
 			b.WriteString("\n")
-			b.WriteString(strings.Join(boxes[mid:], " "))
+			b.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, boxes[mid:]...))
 		}
 	}
 
@@ -325,13 +381,6 @@ func (m EncodingModel) View() string {
 			b.WriteString("  " + style.MutedStyle().Render(line))
 			b.WriteString("\n")
 		}
-	}
-
-	b.WriteString("\n")
-	if m.done {
-		b.WriteString(style.KeyHintStyle().Render("[Esc] Back"))
-	} else {
-		b.WriteString(style.KeyHintStyle().Render("[Esc/c] Cancel"))
 	}
 
 	return b.String()

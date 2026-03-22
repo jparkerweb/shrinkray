@@ -81,9 +81,18 @@ func ParseFFmpegError(stderr string) string {
 		}
 	}
 
-	// No pattern matched — return truncated original
-	if len(stderr) > 200 {
-		return stderr[:200] + "..."
+	// No pattern matched — return last meaningful lines (the banner is at
+	// the top and the actual error is usually near the bottom).
+	lines := strings.Split(stderr, "\n")
+	var tail []string
+	for i := len(lines) - 1; i >= 0 && len(tail) < 6; i-- {
+		if trimmed := strings.TrimSpace(lines[i]); trimmed != "" {
+			tail = append([]string{trimmed}, tail...)
+		}
 	}
-	return stderr
+	result := strings.Join(tail, "\n")
+	if len(result) > 500 {
+		result = result[:500] + "..."
+	}
+	return result
 }

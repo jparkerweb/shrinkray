@@ -11,11 +11,11 @@ func TestOpenFolderCommand_Windows(t *testing.T) {
 		t.Skip("Windows-only test")
 	}
 	name, args := OpenFolderCommand("/tmp/output.mp4")
-	if name != "explorer" {
-		t.Errorf("expected explorer, got %s", name)
+	if name != "explorer.exe" {
+		t.Errorf("expected explorer.exe, got %s", name)
 	}
 	if len(args) != 1 || !strings.HasPrefix(args[0], "/select,") {
-		t.Errorf("expected /select, arg, got %v", args)
+		t.Errorf("expected [/select,path], got %v", args)
 	}
 }
 

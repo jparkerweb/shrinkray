@@ -35,22 +35,29 @@ type App struct {
 	hwEncoders     []engine.HWEncoder
 	batchQueue     *engine.JobQueue
 	batchStart     time.Time
+	version        string
 }
 
 // AppOptions holds configuration for creating a new App.
 type AppOptions struct {
 	InputPath string
 	VideoInfo *engine.VideoInfo
+	Version   string
 }
 
 // NewApp creates a new App model.
 func NewApp(opts AppOptions) App {
+	ver := opts.Version
+	if ver == "" {
+		ver = "dev"
+	}
 	app := App{
 		currentScreen: messages.ScreenSplash,
 		keyMap:        DefaultKeyMap(),
 		screenModels:  make(map[messages.Screen]ScreenModel),
 		inputPath:     opts.InputPath,
 		videoInfo:     opts.VideoInfo,
+		version:       ver,
 	}
 
 	// Initialize all screen models
@@ -193,7 +200,7 @@ func (a App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			inputSize = a.videoInfo.Size
 		}
 		if complete, ok := a.screenModels[messages.ScreenComplete].(screens.CompleteModel); ok {
-			complete.SetResults(msg.OutputPath, inputSize, msg.OutputSize, elapsed)
+			complete.SetResults(a.inputPath, msg.OutputPath, inputSize, msg.OutputSize, elapsed)
 			a.screenModels[messages.ScreenComplete] = complete
 		}
 		return a.navigateTo(messages.ScreenComplete)
@@ -531,7 +538,11 @@ func (a App) screenBindings() [][2]string {
 }
 
 func (a App) renderHeader() string {
-	left := HeaderStyle().Render(" shrinkray ")
+	ver := a.version
+	if len(ver) > 0 && ver[0] != 'v' {
+		ver = "v" + ver
+	}
+	left := HeaderStyle().Render(fmt.Sprintf(" shrinkray %s ", ver))
 	right := HeaderStyle().Render(fmt.Sprintf(" %s ", a.currentScreen.String()))
 
 	gap := a.width - visibleLen(left) - visibleLen(right)
@@ -565,7 +576,7 @@ func (a App) footerHints() string {
 	case messages.ScreenEncoding:
 		return "Esc/c: cancel | Ctrl+C: quit"
 	case messages.ScreenComplete:
-		return "o: open folder | r: re-encode | n: new file | q: quit"
+		return "o: open folder | d: delete original | r: re-encode | n: new file | q: quit"
 	case messages.ScreenBatchQueue:
 		return "Enter: start | d: remove | Shift+Up/Down: reorder | Esc: back"
 	case messages.ScreenBatchProgress:

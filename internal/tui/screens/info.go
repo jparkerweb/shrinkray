@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	tea "charm.land/bubbletea/v2"
+	lipgloss "charm.land/lipgloss/v2"
 
 	"github.com/jparkerweb/shrinkray/internal/engine"
 	"github.com/jparkerweb/shrinkray/internal/presets"
@@ -189,7 +190,7 @@ func (m InfoModel) View() string {
 			style.StatBoxStyle().Render(fmt.Sprintf("Size\n%s", formatBytes(v.Size))),
 			style.StatBoxStyle().Render(fmt.Sprintf("Bitrate\n%s", formatBitrate(v.Bitrate))),
 		}
-		b.WriteString(strings.Join(boxes, " "))
+		b.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, boxes...))
 		b.WriteString("\n")
 	}
 

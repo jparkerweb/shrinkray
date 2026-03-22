@@ -15,4 +15,5 @@ type ProgressUpdate struct {
 	Pass        int           `json:"pass"`        // 0 for single-pass, 1 or 2 for two-pass
 	Done        bool          `json:"done"`
 	Error       error         `json:"-"`
+	Stderr      string        `json:"-"` // FFmpeg stderr output (populated on completion)
 }

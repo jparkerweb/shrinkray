@@ -62,6 +62,30 @@ Details: [TUI Screens & Styling](./.agents-docs/AGENTS-tui-screens.md)
 
 ---
 
+## Versioning & Changelog
+
+This project uses [Semantic Versioning](https://semver.org/). Git tags and `CHANGELOG.md` must stay aligned.
+
+### Rules
+
+- **CHANGELOG.md** follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format with sections: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`.
+- All notable changes go under `[Unreleased]` as they are made.
+- When cutting a release, rename `[Unreleased]` to `[X.Y.Z] - YYYY-MM-DD`, add a fresh `[Unreleased]` section above it, and update the comparison links at the bottom of the file.
+- Create a matching git tag: `git tag vX.Y.Z && git push origin vX.Y.Z`. GoReleaser uses the tag to build release binaries.
+- **Version bumping**: breaking changes → major, new features → minor, bug fixes → patch.
+- The `install-local.ps1` script derives its version string from `git describe --tags`, so the tag is the source of truth.
+
+### Checklist for Releases
+
+1. Move `[Unreleased]` entries to `[X.Y.Z] - YYYY-MM-DD` in `CHANGELOG.md`
+2. Add new `[Unreleased]` section header
+3. Update comparison links at the bottom of `CHANGELOG.md`
+4. Commit: `Release vX.Y.Z`
+5. Tag: `git tag vX.Y.Z`
+6. Push: `git push origin main --tags`
+
+---
+
 ## Git Commit Messages
 
 Use this format for all commits:

@@ -76,8 +76,13 @@ func Encode(ctx context.Context, opts EncodeOptions) (<-chan ProgressUpdate, err
 	go func() {
 		defer close(outCh)
 
+		// Forward progress updates but not Done — we send Done after
+		// cmd.Wait() so we can include stderr in the final update.
 		for update := range progressCh {
 			update.Pass = opts.Pass
+			if update.Done {
+				break
+			}
 			select {
 			case outCh <- update:
 			default:
@@ -107,18 +112,12 @@ func Encode(ctx context.Context, opts EncodeOptions) (<-chan ProgressUpdate, err
 				Err:      waitErr,
 			}
 
-			select {
-			case outCh <- ProgressUpdate{Done: true, Error: encErr}:
-			default:
-			}
+			outCh <- ProgressUpdate{Done: true, Error: encErr}
 			return
 		}
 
-		// Send final done if not already sent
-		select {
-		case outCh <- ProgressUpdate{Done: true, Percent: 100, Pass: opts.Pass}:
-		default:
-		}
+		// Send final done with stderr for diagnostics
+		outCh <- ProgressUpdate{Done: true, Percent: 100, Pass: opts.Pass, Stderr: stderrBuf.String()}
 	}()
 
 	// Handle context cancellation — gracefully stop FFmpeg
@@ -217,6 +216,7 @@ func EncodeTwoPass(ctx context.Context, opts EncodeOptions) (<-chan ProgressUpda
 					Done:    true,
 					Percent: 100,
 					Pass:    2,
+					Stderr:  update.Stderr,
 				}
 				return
 			}

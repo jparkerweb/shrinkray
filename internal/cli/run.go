@@ -163,7 +163,9 @@ func runTUI(cmd *cobra.Command) error {
 		tui.SetTheme(tui.ThemeName(cfg.UI.Theme))
 	}
 
-	opts := tui.AppOptions{}
+	opts := tui.AppOptions{
+		Version: version,
+	}
 
 	// If input file was provided via -i, probe it and pre-load
 	if flagInput != "" {
@@ -446,9 +448,22 @@ func runHeadlessSingle(cmd *cobra.Command, cfg *config.Config, input string) err
 		}
 		outputPath = input
 	} else {
+		// Verify temp file has content before moving
+		tempStat, err := os.Stat(tempPath)
+		if err != nil {
+			return fmt.Errorf("output file not found after encoding: %w", err)
+		}
+		if tempStat.Size() == 0 {
+			_ = os.Remove(tempPath)
+			return fmt.Errorf("encoding produced an empty file — FFmpeg may have failed silently")
+		}
+
 		// Move temp file to final output
 		if err := os.Rename(tempPath, outputPath); err != nil {
-			return fmt.Errorf("failed to move output file: %w", err)
+			return fmt.Errorf(
+				"failed to move output file\n  from: %s\n    to: %s\n  cause: %v",
+				tempPath, outputPath, err,
+			)
 		}
 	}
 

@@ -181,7 +181,9 @@ ui:
   - Windows: `scoop install ffmpeg` or `choco install ffmpeg`
 - **Go 1.23+** (only required for building from source)
 
-## Building from Source
+## Development
+
+### Building from Source
 
 ```bash
 git clone https://github.com/jparkerweb/shrinkray.git
@@ -190,20 +192,45 @@ make build
 ./shrinkray version
 ```
 
-Build with version injection:
+### Local Development (Windows)
 
-```bash
-make build
-# or manually:
-go build -ldflags "-s -w -X main.version=1.0.0 -X main.commit=$(git rev-parse --short HEAD) -X main.date=$(date -u +%Y-%m-%dT%H:%M:%SZ)" ./cmd/shrinkray/
+Build and install to your local PATH for testing:
+
+```powershell
+.\scripts\install-local.ps1
 ```
 
-Run tests:
+This builds with version info from `git describe --tags`, installs to `%LOCALAPPDATA%\shrinkray\`, and adds it to your user PATH. The version string (e.g., `v0.2.0-3-gabcdef-dirty`) reflects the latest tag, commits since that tag, and whether there are uncommitted changes.
+
+### Running Tests
 
 ```bash
-make test
-make lint
+make test          # Run tests
+make lint          # Run linter
+make ci            # Run lint + test + build (full CI pipeline locally)
 ```
+
+### Releasing
+
+This project uses [Semantic Versioning](https://semver.org/) with automated releases via GoReleaser.
+
+**Workflow:**
+
+1. Ensure all changes are committed and `CHANGELOG.md` `[Unreleased]` section is up to date
+2. Rename `[Unreleased]` to `[X.Y.Z] - YYYY-MM-DD` in `CHANGELOG.md`
+3. Add a fresh `[Unreleased]` section and update comparison links at the bottom
+4. Commit: `git commit -m "Release vX.Y.Z"`
+5. Tag: `git tag -a vX.Y.Z -m "vX.Y.Z"`
+6. Push: `git push origin main --tags`
+
+Pushing a `v*` tag triggers the GitHub Actions [release workflow](.github/workflows/release.yml), which runs tests and then GoReleaser builds binaries for Windows, macOS, and Linux (amd64 + arm64). Binaries appear on the [Releases page](https://github.com/jparkerweb/shrinkray/releases).
+
+**Version bumping:**
+- Breaking changes → major (X+1.0.0)
+- New features → minor (X.Y+1.0)
+- Bug fixes only → patch (X.Y.Z+1)
+
+If using Claude Code, you can run `/release` to automate this workflow.
 
 ## License
 

@@ -9,6 +9,7 @@ import (
 
 	tea "charm.land/bubbletea/v2"
 	"charm.land/bubbles/v2/progress"
+	lipgloss "charm.land/lipgloss/v2"
 
 	"github.com/jparkerweb/shrinkray/internal/engine"
 	"github.com/jparkerweb/shrinkray/internal/presets"
@@ -299,7 +300,7 @@ func (m BatchProgressModel) View() string {
 				style.StatBoxStyle().Render(fmt.Sprintf("FPS\n%.0f", m.lastUpdate.FPS)),
 				style.StatBoxStyle().Render(fmt.Sprintf("ETA\n%s", formatDurationShort(m.lastUpdate.ETA))),
 			}
-			b.WriteString(strings.Join(boxes, " "))
+			b.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, boxes...))
 		} else {
 			fmt.Fprintf(&b, "  Progress: %.1f%% | Speed: %.1fx | FPS: %.0f\n",
 				m.lastUpdate.Percent, m.lastUpdate.Speed, m.lastUpdate.FPS)

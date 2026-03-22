@@ -303,6 +303,20 @@ func processJob(ctx context.Context, queue *JobQueue, job Job, opts BatchOptions
 	if lastErr != nil {
 		// Clean up temp file
 		_ = os.Remove(tempPath)
+
+		// If a hardware encoder failed, fall back to software and retry
+		if opts.HWEncoder != "" {
+			slog.Info("hardware encoder failed in batch, falling back to software",
+				"encoder", opts.HWEncoder,
+				"job", job.InputPath,
+				"error", lastErr,
+			)
+			swOpts := opts
+			swOpts.HWEncoder = ""
+			processJob(ctx, queue, job, swOpts, maxRetries, eventCh)
+			return
+		}
+
 		handleJobFailure(ctx, queue, job, opts, maxRetries, eventCh, lastErr)
 		return
 	}
@@ -316,6 +330,20 @@ func processJob(ctx context.Context, queue *JobQueue, job Job, opts BatchOptions
 		}
 	}
 
+	// Verify temp file has content before moving
+	tempStat, err := os.Stat(tempPath)
+	if err != nil {
+		handleJobFailure(ctx, queue, job, opts, maxRetries, eventCh,
+			fmt.Errorf("output file not found after encoding: %w", err))
+		return
+	}
+	if tempStat.Size() == 0 {
+		_ = os.Remove(tempPath)
+		handleJobFailure(ctx, queue, job, opts, maxRetries, eventCh,
+			fmt.Errorf("encoding produced an empty file — FFmpeg may have failed silently"))
+		return
+	}
+
 	// Move temp to final output
 	if err := os.Rename(tempPath, outputPath); err != nil {
 		_ = os.Remove(tempPath)
@@ -324,11 +352,7 @@ func processJob(ctx context.Context, queue *JobQueue, job Job, opts BatchOptions
 		return
 	}
 
-	// Get output size
-	var outputSize int64
-	if stat, err := os.Stat(outputPath); err == nil {
-		outputSize = stat.Size()
-	}
+	outputSize := tempStat.Size()
 
 	queue.Update(job.ID, func(j *Job) {
 		j.Status = JobStatusComplete
