@@ -25,6 +25,14 @@ make lint           # Run golangci-lint
 golangci-lint run   # Direct lint
 ```
 
+## CI (Local Verification)
+
+```bash
+make ci             # Run lint → test → build (mirrors GitHub Actions pipeline)
+```
+
+Always run `make ci` before pushing to catch lint errors, test failures, and build issues locally.
+
 ## Release
 
 ```bash
@@ -37,6 +45,18 @@ make release-dry    # Dry-run GoReleaser (no publish)
 go mod tidy         # Clean up go.mod/go.sum
 go mod download     # Download dependencies
 ```
+
+## Windows Dev Setup
+
+Prerequisites: Go, Make, golangci-lint. Install via PowerShell:
+
+```powershell
+winget install GoLang.Go
+winget install GnuWin32.Make
+go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest
+```
+
+Restart the terminal after installing so PATH updates take effect. Note: golangci-lint is not available in winget — use `go install` instead.
 
 ## Notes
 
