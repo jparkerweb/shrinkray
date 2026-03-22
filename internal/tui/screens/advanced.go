@@ -136,11 +136,12 @@ func (m *AdvancedModel) SetPreset(p *presets.Preset) {
 	}
 
 	// Audio channels
-	if p.AudioChannels == 2 {
+	switch p.AudioChannels {
+	case 2:
 		m.audioChannelIdx = 1
-	} else if p.AudioChannels == 1 {
+	case 1:
 		m.audioChannelIdx = 2
-	} else {
+	default:
 		m.audioChannelIdx = 0
 	}
 
@@ -375,7 +376,7 @@ func (m AdvancedModel) renderField(b *strings.Builder, idx int, label, value str
 		valueStyle = style.SuccessStyle()
 	}
 
-	b.WriteString(fmt.Sprintf("%s%s %s\n", cursor, labelStyle.Render(label+":"), valueStyle.Render(value)))
+	fmt.Fprintf(b, "%s%s %s\n", cursor, labelStyle.Render(label+":"), valueStyle.Render(value))
 }
 
 func clampIdx(v, max int) int {

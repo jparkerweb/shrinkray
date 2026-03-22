@@ -23,7 +23,6 @@ type BatchQueueModel struct {
 	width       int
 	height      int
 	scrollTop   int
-	errMsg      string
 }
 
 // NewBatchQueueModel creates a new batch queue model.

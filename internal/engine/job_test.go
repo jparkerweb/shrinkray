@@ -276,7 +276,7 @@ func TestShouldSkip_SkipExisting(t *testing.T) {
 		t.Fatal(err)
 	}
 	_ = tmp.Close()
-	defer os.Remove(tmp.Name())
+	defer func() { _ = os.Remove(tmp.Name()) }()
 
 	job := Job{
 		InputPath:  "input.mp4",

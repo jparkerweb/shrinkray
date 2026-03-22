@@ -111,10 +111,6 @@ func AdaptiveResolution(targetBytes int64, duration time.Duration, width int, he
 		return width, height
 	}
 
-	if fps <= 0 {
-		fps = 30
-	}
-
 	// First check if source resolution is acceptable
 	result := FeasibilityCheck(targetBytes, duration, width, height)
 	if result.Status == FeasibilityAcceptable {

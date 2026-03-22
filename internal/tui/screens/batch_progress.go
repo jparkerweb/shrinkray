@@ -301,8 +301,8 @@ func (m BatchProgressModel) View() string {
 			}
 			b.WriteString(strings.Join(boxes, " "))
 		} else {
-			b.WriteString(fmt.Sprintf("  Progress: %.1f%% | Speed: %.1fx | FPS: %.0f\n",
-				m.lastUpdate.Percent, m.lastUpdate.Speed, m.lastUpdate.FPS))
+			fmt.Fprintf(&b, "  Progress: %.1f%% | Speed: %.1fx | FPS: %.0f\n",
+				m.lastUpdate.Percent, m.lastUpdate.Speed, m.lastUpdate.FPS)
 		}
 		b.WriteString("\n")
 		b.WriteString(style.MutedStyle().Render(fmt.Sprintf("Elapsed: %s", formatDurationShort(elapsed))))

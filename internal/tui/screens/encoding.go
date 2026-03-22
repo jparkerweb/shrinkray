@@ -278,7 +278,7 @@ func (m EncodingModel) View() string {
 	isNarrow := m.width < 60
 
 	if isNarrow {
-		b.WriteString(fmt.Sprintf("  Percent: %.1f%%\n", m.update.Percent))
+		fmt.Fprintf(&b, "  Percent: %.1f%%\n", m.update.Percent)
 		if m.isTwoPass && m.update.Pass > 0 {
 			b.WriteString(fmt.Sprintf("  Pass:    %d/2\n", m.update.Pass))
 		}

@@ -323,7 +323,7 @@ func runHeadlessSingle(cmd *cobra.Command, cfg *config.Config, input string) err
 
 	// Use temp file for safety
 	tempPath := engine.TempPath(outputPath)
-	defer os.Remove(tempPath)
+	defer func() { _ = os.Remove(tempPath) }()
 
 	fmt.Fprintf(os.Stderr, "Output:       %s\n\n", outputPath)
 
