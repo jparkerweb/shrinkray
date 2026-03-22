@@ -4,7 +4,7 @@ COMMIT := $(shell git rev-parse --short HEAD 2>/dev/null || echo "none")
 DATE := $(shell date -u '+%Y-%m-%dT%H:%M:%SZ' 2>/dev/null || echo "unknown")
 LDFLAGS := -ldflags "-s -w -X main.version=$(VERSION) -X main.commit=$(COMMIT) -X main.date=$(DATE)"
 
-.PHONY: build run test lint clean snapshot
+.PHONY: build run test lint ci clean snapshot
 
 build:
 	CGO_ENABLED=0 go build $(LDFLAGS) -o $(BINARY_NAME) ./cmd/shrinkray/
@@ -17,6 +17,8 @@ test:
 
 lint:
 	golangci-lint run ./...
+
+ci: lint test build
 
 clean:
 	rm -f $(BINARY_NAME)
