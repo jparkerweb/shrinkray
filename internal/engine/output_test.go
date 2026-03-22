@@ -178,9 +178,17 @@ func TestResolveOutput_InplaceMode(t *testing.T) {
 }
 
 func TestTempPath(t *testing.T) {
-	tp := TempPath("/tmp/output.mp4")
-	expected := "/tmp/output.mp4.shrinkray.tmp"
+	tp := TempPath(filepath.Join("/tmp", "output.mp4"))
+	expected := filepath.Join("/tmp", "output.shrinkray.tmp.mp4")
 	if tp != expected {
 		t.Errorf("expected %s, got %s", expected, tp)
+	}
+
+	// Long filename should be truncated
+	longName := filepath.Join("/videos", "A_Very_Long_Filename_That_Exceeds_Twenty_Characters.mkv")
+	tp2 := TempPath(longName)
+	expected2 := filepath.Join("/videos", "A_Very_Long_Filename.shrinkray.tmp.mkv")
+	if tp2 != expected2 {
+		t.Errorf("expected %s, got %s", expected2, tp2)
 	}
 }

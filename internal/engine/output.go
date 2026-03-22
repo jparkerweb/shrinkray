@@ -102,10 +102,23 @@ func ResolveOutput(input string, opts OutputOptions) (string, error) {
 	return output, nil
 }
 
-// TempPath returns a temporary file path for the given output path.
+// TempPath returns a temporary file path in the same directory as output.
+// Uses a short name to avoid Windows 260-char path limit while keeping
+// the extension to help FFmpeg choose the right muxer.
 // The caller should use defer os.Remove(tempPath) and os.Rename(temp, output) on success.
 func TempPath(output string) string {
-	return output + ".shrinkray.tmp"
+	dir := filepath.Dir(output)
+	ext := filepath.Ext(output)
+	base := filepath.Base(output)
+	base = strings.TrimSuffix(base, ext)
+
+	// Truncate base to keep total path short on Windows
+	const maxBase = 20
+	if len(base) > maxBase {
+		base = base[:maxBase]
+	}
+
+	return filepath.Join(dir, base+".shrinkray.tmp"+ext)
 }
 
 // ErrAutorenameExhausted is returned when all 99 auto-rename slots are taken.
