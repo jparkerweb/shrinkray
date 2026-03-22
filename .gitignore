@@ -39,6 +39,10 @@ ffmpeg2pass-*.log.mbtree
 .shrinkray-queue.json
 *.shrinkray.tmp
 
+# Specs
+specs/
+specs--completed/
+
 # Environment
 .env
 .env.local
