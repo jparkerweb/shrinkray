@@ -280,13 +280,13 @@ func (m EncodingModel) View() string {
 	if isNarrow {
 		fmt.Fprintf(&b, "  Percent: %.1f%%\n", m.update.Percent)
 		if m.isTwoPass && m.update.Pass > 0 {
-			b.WriteString(fmt.Sprintf("  Pass:    %d/2\n", m.update.Pass))
+			fmt.Fprintf(&b, "  Pass:    %d/2\n", m.update.Pass)
 		}
-		b.WriteString(fmt.Sprintf("  Speed:   %.1fx\n", m.update.Speed))
-		b.WriteString(fmt.Sprintf("  FPS:     %.0f\n", m.update.FPS))
-		b.WriteString(fmt.Sprintf("  Bitrate: %s\n", m.update.Bitrate))
-		b.WriteString(fmt.Sprintf("  Size:    %s\n", formatBytes(m.update.Size)))
-		b.WriteString(fmt.Sprintf("  ETA:     %s\n", formatDurationShort(m.update.ETA)))
+		fmt.Fprintf(&b, "  Speed:   %.1fx\n", m.update.Speed)
+		fmt.Fprintf(&b, "  FPS:     %.0f\n", m.update.FPS)
+		fmt.Fprintf(&b, "  Bitrate: %s\n", m.update.Bitrate)
+		fmt.Fprintf(&b, "  Size:    %s\n", formatBytes(m.update.Size))
+		fmt.Fprintf(&b, "  ETA:     %s\n", formatDurationShort(m.update.ETA))
 	} else {
 		boxes := []string{
 			style.StatBoxStyle().Render(fmt.Sprintf("Percent\n%.1f%%", m.update.Percent)),

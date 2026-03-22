@@ -402,10 +402,10 @@ func (a App) renderHelpOverlay(base string) string {
 		{"Esc", "Go back"},
 	}
 	for _, bind := range globalBindings {
-		help.WriteString(fmt.Sprintf("  %s%s%s\n",
+		fmt.Fprintf(&help, "  %s%s%s\n",
 			style.KeyHintStyle().Render(fmt.Sprintf("%-12s", bind[0])),
 			"  ",
-			bind[1]))
+			bind[1])
 	}
 
 	// Context-sensitive bindings
@@ -415,10 +415,10 @@ func (a App) renderHelpOverlay(base string) string {
 
 	screenBindings := a.screenBindings()
 	for _, bind := range screenBindings {
-		help.WriteString(fmt.Sprintf("  %s%s%s\n",
+		fmt.Fprintf(&help, "  %s%s%s\n",
 			style.KeyHintStyle().Render(fmt.Sprintf("%-12s", bind[0])),
 			"  ",
-			bind[1]))
+			bind[1])
 	}
 
 	help.WriteString("\n")

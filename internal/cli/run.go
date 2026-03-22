@@ -799,18 +799,18 @@ func buildOutputOpts(cfg *config.Config) engine.OutputOptions {
 func verifyAndReplace(ctx context.Context, sourcePath, tempPath string) error {
 	sourceInfo, err := engine.Probe(ctx, sourcePath)
 	if err != nil {
-		os.Remove(tempPath)
+		_ = os.Remove(tempPath)
 		return fmt.Errorf("in-place verification failed: cannot probe source: %w", err)
 	}
 
 	tempInfo, err := engine.Probe(ctx, tempPath)
 	if err != nil {
-		os.Remove(tempPath)
+		_ = os.Remove(tempPath)
 		return fmt.Errorf("in-place verification failed: output is not a valid video: %w", err)
 	}
 
 	if tempInfo.Width <= 0 || tempInfo.Height <= 0 {
-		os.Remove(tempPath)
+		_ = os.Remove(tempPath)
 		return fmt.Errorf("in-place verification failed: output has no video stream")
 	}
 
@@ -821,7 +821,7 @@ func verifyAndReplace(ctx context.Context, sourcePath, tempPath string) error {
 		}
 		tolerance := sourceInfo.Duration * 0.05
 		if diff > tolerance {
-			os.Remove(tempPath)
+			_ = os.Remove(tempPath)
 			return fmt.Errorf("in-place verification failed: output duration %.1fs differs from source %.1fs by more than 5%%",
 				tempInfo.Duration, sourceInfo.Duration)
 		}

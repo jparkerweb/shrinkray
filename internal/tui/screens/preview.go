@@ -190,7 +190,7 @@ func (m PreviewModel) View() string {
 		encoderDisplay := fmt.Sprintf("%s (%s)", strings.ToUpper(m.hwName), m.hwEncoder)
 		afterContent.WriteString(style.AccentStyle().Render(encoderDisplay))
 	} else {
-		afterContent.WriteString(fmt.Sprintf("Software (%s)", codecToLibDisplay(p.Codec)))
+		fmt.Fprintf(&afterContent, "Software (%s)", codecToLibDisplay(p.Codec))
 	}
 
 	afterCard := style.CardActiveStyle().Width(cardWidth).Render(afterContent.String())
