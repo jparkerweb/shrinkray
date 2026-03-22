@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	tea "charm.land/bubbletea/v2"
@@ -31,6 +32,11 @@ type FilePickerModel struct {
 	width        int
 	height       int
 	recursive    bool // whether to recurse into directories
+
+	// Drive selector (Windows only)
+	showDrives    bool
+	drives        []string
+	driveSelected int
 }
 
 // NewFilePickerModel creates a new file picker model.
@@ -76,6 +82,11 @@ func (m FilePickerModel) Update(msg tea.Msg) (style.ScreenModel, tea.Cmd) {
 		return m, nil
 
 	case tea.KeyPressMsg:
+		// Drive selector mode
+		if m.showDrives {
+			return m.handleDriveSelect(msg)
+		}
+
 		switch msg.String() {
 		case "tab":
 			m.useText = !m.useText
@@ -88,6 +99,24 @@ func (m FilePickerModel) Update(msg tea.Msg) (style.ScreenModel, tea.Cmd) {
 
 		if m.useText {
 			return m.handleTextInput(msg)
+		}
+
+		// "d" key: open drive selector (Windows only)
+		if msg.String() == "d" {
+			drives := detectDrives()
+			if len(drives) > 0 {
+				m.showDrives = true
+				m.drives = drives
+				// Pre-select current drive
+				cur := filepath.VolumeName(m.picker.CurrentDirectory) + "\\"
+				for i, d := range drives {
+					if strings.EqualFold(d, cur) {
+						m.driveSelected = i
+						break
+					}
+				}
+				return m, nil
+			}
 		}
 
 		// "b" key: proceed to batch queue with selected files
@@ -154,6 +183,29 @@ func (m FilePickerModel) selectedPaths() []string {
 		paths = append(paths, p)
 	}
 	return paths
+}
+
+func (m FilePickerModel) handleDriveSelect(msg tea.KeyPressMsg) (style.ScreenModel, tea.Cmd) {
+	switch msg.String() {
+	case "up", "k":
+		if m.driveSelected > 0 {
+			m.driveSelected--
+		}
+		return m, nil
+	case "down", "j":
+		if m.driveSelected < len(m.drives)-1 {
+			m.driveSelected++
+		}
+		return m, nil
+	case "enter":
+		m.picker.CurrentDirectory = m.drives[m.driveSelected]
+		m.showDrives = false
+		return m, m.picker.Init()
+	case "esc", "d":
+		m.showDrives = false
+		return m, nil
+	}
+	return m, nil
 }
 
 func (m FilePickerModel) handleTextInput(msg tea.KeyPressMsg) (style.ScreenModel, tea.Cmd) {
@@ -294,6 +346,22 @@ func DiscoverVideoFiles(dir string, recursive bool) []string {
 	return discoverVideoFiles(dir, recursive)
 }
 
+// detectDrives returns available drive letters on Windows (e.g., ["C:\\", "D:\\"]).
+// Returns nil on non-Windows platforms.
+func detectDrives() []string {
+	if runtime.GOOS != "windows" {
+		return nil
+	}
+	var drives []string
+	for letter := 'A'; letter <= 'Z'; letter++ {
+		root := string(letter) + ":\\"
+		if _, err := os.Stat(root); err == nil {
+			drives = append(drives, root)
+		}
+	}
+	return drives
+}
+
 func probeFile(path string) tea.Cmd {
 	return func() tea.Msg {
 		info, err := engine.Probe(context.Background(), path)
@@ -309,7 +377,18 @@ func (m FilePickerModel) View() string {
 	b.WriteString(title)
 	b.WriteString("\n")
 
-	if m.useText {
+	if m.showDrives {
+		b.WriteString(style.SubtitleStyle().Render("Select Drive"))
+		b.WriteString("\n\n")
+		for i, d := range m.drives {
+			if i == m.driveSelected {
+				b.WriteString(style.AccentStyle().Render("> " + d))
+			} else {
+				b.WriteString("  " + d)
+			}
+			b.WriteString("\n")
+		}
+	} else if m.useText {
 		b.WriteString(style.SubtitleStyle().Render("Enter file path (comma-separated for batch, or directory):"))
 		b.WriteString("\n\n")
 
@@ -356,10 +435,16 @@ func (m FilePickerModel) View() string {
 
 	// Mode toggle hint
 	b.WriteString("\n")
-	if m.useText {
+	if m.showDrives {
+		b.WriteString(style.KeyHintStyle().Render("[↑/↓] Navigate  [Enter] Select drive  [Esc] Cancel"))
+	} else if m.useText {
 		b.WriteString(style.KeyHintStyle().Render("[Tab] Switch to browser  [Enter] Confirm  [Esc] Back"))
 	} else {
-		hints := "[←/Backspace] Up dir  [Enter] Select  [Space] Multi-select  [Tab] Path input  [Esc] Back"
+		hints := "[←/Backspace] Up dir  [Enter] Select  [Space] Multi-select  [Tab] Path input"
+		if runtime.GOOS == "windows" {
+			hints += "  [d] Change drive"
+		}
+		hints += "  [Esc] Back"
 		b.WriteString(style.KeyHintStyle().Render(hints))
 	}
 
