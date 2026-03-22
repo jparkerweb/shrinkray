@@ -16,7 +16,7 @@ This file provides guidance to AI coding agents like Claude Code (claude.ai/code
 
 ## Development Commands
 
-Common commands for building, testing, and running the project.
+Common commands for building, testing, and running the project. Use `make ci` to run the full lint → test → build pipeline locally before pushing.
 
 Details: [Development Commands](./.agents-docs/AGENTS-development-commands.md)
 
