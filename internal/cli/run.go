@@ -671,7 +671,7 @@ func runHeadlessBatch(cmd *cobra.Command, cfg *config.Config, inputs []string) e
 
 			// Clean queue if all complete
 			if stats.Failed == 0 && stats.Pending == 0 {
-				engine.CleanQueue("")
+				_ = engine.CleanQueue("")
 			}
 		}
 	}

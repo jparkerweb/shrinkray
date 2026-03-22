@@ -275,7 +275,7 @@ func TestShouldSkip_SkipExisting(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	tmp.Close()
+	_ = tmp.Close()
 	defer os.Remove(tmp.Name())
 
 	job := Job{

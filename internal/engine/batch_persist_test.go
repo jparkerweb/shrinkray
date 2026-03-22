@@ -11,7 +11,7 @@ func TestSaveAndLoadQueue(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.RemoveAll(tmpDir)
+	defer func() { _ = os.RemoveAll(tmpDir) }()
 
 	path := filepath.Join(tmpDir, "test_queue.json")
 
@@ -92,7 +92,7 @@ func TestCleanQueue(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.RemoveAll(tmpDir)
+	defer func() { _ = os.RemoveAll(tmpDir) }()
 
 	path := filepath.Join(tmpDir, "test_queue.json")
 
@@ -124,7 +124,7 @@ func TestHasPendingQueue(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.RemoveAll(tmpDir)
+	defer func() { _ = os.RemoveAll(tmpDir) }()
 
 	path := filepath.Join(tmpDir, "test_queue.json")
 
@@ -134,7 +134,7 @@ func TestHasPendingQueue(t *testing.T) {
 	q.mutex.Lock()
 	q.Jobs[0].Status = JobStatusComplete
 	q.mutex.Unlock()
-	SaveQueue(path, q)
+	_ = SaveQueue(path, q)
 
 	hasPending, _ := HasPendingQueue(path)
 	if hasPending {
@@ -147,7 +147,7 @@ func TestHasPendingQueue(t *testing.T) {
 	q2.mutex.Lock()
 	q2.Jobs[0].Status = JobStatusFailed
 	q2.mutex.Unlock()
-	SaveQueue(path, q2)
+	_ = SaveQueue(path, q2)
 
 	hasPending, loaded := HasPendingQueue(path)
 	if !hasPending {

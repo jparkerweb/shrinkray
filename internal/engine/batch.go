@@ -302,7 +302,7 @@ func processJob(ctx context.Context, queue *JobQueue, job Job, opts BatchOptions
 
 	if lastErr != nil {
 		// Clean up temp file
-		os.Remove(tempPath)
+		_ = os.Remove(tempPath)
 		handleJobFailure(ctx, queue, job, opts, maxRetries, eventCh, lastErr)
 		return
 	}
@@ -310,7 +310,7 @@ func processJob(ctx context.Context, queue *JobQueue, job Job, opts BatchOptions
 	// For in-place mode, verify the temp file before replacing
 	if isInPlace {
 		if err := verifyInPlace(ctx, job.InputPath, tempPath); err != nil {
-			os.Remove(tempPath)
+			_ = os.Remove(tempPath)
 			handleJobFailure(ctx, queue, job, opts, maxRetries, eventCh, err)
 			return
 		}
@@ -318,7 +318,7 @@ func processJob(ctx context.Context, queue *JobQueue, job Job, opts BatchOptions
 
 	// Move temp to final output
 	if err := os.Rename(tempPath, outputPath); err != nil {
-		os.Remove(tempPath)
+		_ = os.Remove(tempPath)
 		handleJobFailure(ctx, queue, job, opts, maxRetries, eventCh,
 			fmt.Errorf("move output: %w", err))
 		return
