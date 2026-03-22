@@ -1,0 +1,44 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+shrinkray
+
+# Test binary
+*.test
+
+# Output of go coverage
+*.out
+coverage.html
+
+# Go workspace
+go.work
+go.work.sum
+
+# Build output
+dist/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# FFmpeg pass logs
+ffmpeg2pass-*.log
+ffmpeg2pass-*.log.mbtree
+
+# shrinkray runtime
+.shrinkray-queue.json
+*.shrinkray.tmp
+
+# Environment
+.env
+.env.local
