@@ -4,7 +4,7 @@
 *.dll
 *.so
 *.dylib
-shrinkray
+/shrinkray
 
 # Test binary
 *.test
