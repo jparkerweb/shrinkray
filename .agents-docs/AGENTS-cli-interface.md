@@ -48,6 +48,8 @@ shrinkray help                      # Show help
 --overwrite               Overwrite existing output files
 --skip-existing           Skip files with existing output
 --auto-rename             Auto-rename on conflict: video_shrunk(1).mp4
+--audio-channels <mode>   Audio channels: stereo, mono, source
+--extra-args <arg>        Extra FFmpeg arguments (repeatable)
 --recursive               Recurse into subdirectories
 --jobs <n>                Concurrent encoding jobs (default: 2)
 --dry-run                 Show what would be done without encoding

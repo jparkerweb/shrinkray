@@ -8,6 +8,8 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -53,6 +55,26 @@ var (
 	flagKeepMetadata  bool
 	flagMetadataTitle string
 	flagOpen          bool
+
+	// HW acceleration flags
+	flagHWAccel   bool
+	flagNoHWAccel bool
+
+	// Audio flags
+	flagAudioCodec    string
+	flagAudioBitrate  string
+	flagAudioChannels string
+
+	// Phase 3 flags
+	flagFPS         int
+	flagSpeedPreset string
+	flagTargetSize  string
+	flagTwoPass     bool
+
+	// Phase 4 flags
+	flagOverwrite  bool
+	flagAutoRename bool
+	flagExtraArgs  []string
 )
 
 func registerRunFlags(cmd *cobra.Command) {
@@ -84,6 +106,101 @@ func registerRunFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVar(&flagKeepMetadata, "keep-metadata", true, "preserve source metadata (default)")
 	cmd.Flags().StringVar(&flagMetadataTitle, "metadata-title", "", "set output title metadata")
 	cmd.Flags().BoolVar(&flagOpen, "open", false, "open output folder after completion")
+
+	// HW acceleration flags
+	cmd.Flags().BoolVar(&flagHWAccel, "hw-accel", false, "auto-detect and use hardware encoder")
+	cmd.Flags().BoolVar(&flagNoHWAccel, "no-hw-accel", false, "force software encoding")
+
+	// Audio flags
+	cmd.Flags().StringVar(&flagAudioCodec, "audio-codec", "", "audio codec: aac, opus, copy, none")
+	cmd.Flags().StringVar(&flagAudioBitrate, "audio-bitrate", "", "audio bitrate: 64k, 96k, 128k, 192k, 256k")
+	cmd.Flags().StringVar(&flagAudioChannels, "audio-channels", "", "audio channels: stereo, mono, source")
+
+	// Phase 3 flags
+	cmd.Flags().IntVar(&flagFPS, "fps", 0, "maximum output framerate")
+	cmd.Flags().StringVar(&flagSpeedPreset, "speed-preset", "", "encoder speed preset (e.g., fast, medium, slow)")
+	cmd.Flags().StringVar(&flagTargetSize, "target-size", "", "target output size (e.g., 25mb, 1gb) — forces two-pass")
+	cmd.Flags().BoolVar(&flagTwoPass, "two-pass", false, "force two-pass encoding")
+
+	// Phase 4 flags
+	cmd.Flags().BoolVar(&flagOverwrite, "overwrite", false, "overwrite existing output files")
+	cmd.Flags().BoolVar(&flagAutoRename, "auto-rename", false, "auto-rename output if file exists")
+	cmd.Flags().StringArrayVar(&flagExtraArgs, "extra-args", nil, "extra FFmpeg arguments (repeatable)")
+}
+
+// validateFlags checks for mutually exclusive flag combinations.
+func validateFlags(cmd *cobra.Command) error {
+	// Check mutual exclusivity of conflict mode flags
+	conflictCount := 0
+	if cmd.Flags().Changed("overwrite") {
+		conflictCount++
+	}
+	if cmd.Flags().Changed("auto-rename") {
+		conflictCount++
+	}
+	if cmd.Flags().Changed("skip-existing") {
+		conflictCount++
+	}
+	if conflictCount > 1 {
+		return fmt.Errorf("--overwrite, --auto-rename, and --skip-existing are mutually exclusive")
+	}
+
+	if cmd.Flags().Changed("hw-accel") && cmd.Flags().Changed("no-hw-accel") {
+		return fmt.Errorf("--hw-accel and --no-hw-accel are mutually exclusive")
+	}
+	if cmd.Flags().Changed("audio-codec") {
+		switch flagAudioCodec {
+		case "aac", "opus", "copy", "none":
+		default:
+			return fmt.Errorf("--audio-codec must be one of: aac, opus, copy, none")
+		}
+	}
+	if cmd.Flags().Changed("audio-bitrate") {
+		matched, _ := regexp.MatchString(`^\d+k$`, flagAudioBitrate)
+		if !matched {
+			return fmt.Errorf("--audio-bitrate must be in format like 128k")
+		}
+	}
+	if cmd.Flags().Changed("audio-channels") {
+		switch flagAudioChannels {
+		case "stereo", "mono", "source":
+		default:
+			return fmt.Errorf("--audio-channels must be one of: stereo, mono, source")
+		}
+	}
+	if cmd.Flags().Changed("speed-preset") {
+		switch flagSpeedPreset {
+		case "ultrafast", "superfast", "veryfast", "faster", "fast", "medium", "slow", "slower", "veryslow", "placebo":
+		default:
+			return fmt.Errorf("--speed-preset must be one of: ultrafast, superfast, veryfast, faster, fast, medium, slow, slower, veryslow, placebo")
+		}
+	}
+	if cmd.Flags().Changed("target-size") {
+		if _, err := parseTargetSize(flagTargetSize); err != nil {
+			return err
+		}
+	}
+	if cmd.Flags().Changed("fps") && flagFPS < 1 {
+		return fmt.Errorf("--fps must be a positive integer")
+	}
+	return nil
+}
+
+// parseTargetSize parses a target size string like "25mb" or "1gb" into megabytes.
+func parseTargetSize(s string) (float64, error) {
+	re := regexp.MustCompile(`(?i)^(\d+(?:\.\d+)?)\s*(mb|gb)$`)
+	matches := re.FindStringSubmatch(s)
+	if matches == nil {
+		return 0, fmt.Errorf("invalid target size %q: expected format like 25mb or 1gb", s)
+	}
+	val, err := strconv.ParseFloat(matches[1], 64)
+	if err != nil {
+		return 0, fmt.Errorf("invalid target size %q: %w", s, err)
+	}
+	if strings.EqualFold(matches[2], "gb") {
+		val *= 1024
+	}
+	return val, nil
 }
 
 // runCmd is the default command — handles both TUI and headless modes.
@@ -200,6 +317,11 @@ func runHeadless(cmd *cobra.Command) error {
 	// Setup logging
 	if err := logging.Setup("headless", flagLogLevel); err != nil {
 		fmt.Fprintf(os.Stderr, "Warning: failed to setup logging: %v\n", err)
+	}
+
+	// Validate flags
+	if err := validateFlags(cmd); err != nil {
+		return err
 	}
 
 	// Load config
@@ -331,9 +453,10 @@ func runHeadlessSingle(cmd *cobra.Command, cfg *config.Config, input string) err
 
 	// Build encode options
 	encodeOpts := engine.EncodeOptions{
-		Input:  input,
-		Output: tempPath,
-		Preset: preset,
+		Input:      input,
+		Output:     tempPath,
+		Preset:     preset,
+		SourceInfo: videoInfo,
 	}
 	if cmd.Flags().Changed("crf") {
 		encodeOpts.CRFOverride = &flagCRF
@@ -345,8 +468,74 @@ func runHeadlessSingle(cmd *cobra.Command, cfg *config.Config, input string) err
 		encodeOpts.Preset.Codec = flagCodec
 	}
 
+	// Audio overrides
+	if cmd.Flags().Changed("audio-codec") {
+		encodeOpts.Preset.AudioCodec = flagAudioCodec
+	}
+	if cmd.Flags().Changed("audio-bitrate") {
+		encodeOpts.Preset.AudioBitrate = flagAudioBitrate
+	}
+	if cmd.Flags().Changed("audio-channels") {
+		switch flagAudioChannels {
+		case "stereo":
+			encodeOpts.Preset.AudioChannels = 2
+		case "mono":
+			encodeOpts.Preset.AudioChannels = 1
+		case "source":
+			encodeOpts.Preset.AudioChannels = 0
+		}
+	}
+
+	// Phase 3 overrides
+	if cmd.Flags().Changed("fps") {
+		encodeOpts.Preset.MaxFPS = flagFPS
+	}
+	if cmd.Flags().Changed("speed-preset") {
+		encodeOpts.Preset.SpeedPreset = flagSpeedPreset
+	}
+	if cmd.Flags().Changed("target-size") {
+		mb, _ := parseTargetSize(flagTargetSize)
+		encodeOpts.Preset.TargetSizeMB = mb
+		encodeOpts.Preset.TwoPass = true
+	}
+	if cmd.Flags().Changed("two-pass") {
+		encodeOpts.Preset.TwoPass = true
+	}
+
+	// HW encoder detection
+	if flagNoHWAccel {
+		encodeOpts.HWEncoder = ""
+	} else if flagHWAccel {
+		detectCtx := context.Background()
+		encoders, hwErr := engine.DetectHardware(detectCtx)
+		if hwErr == nil {
+			for _, enc := range encoders {
+				if !enc.Available {
+					continue
+				}
+				for _, c := range enc.Codecs {
+					if c == encodeOpts.Preset.Codec {
+						encodeOpts.HWEncoder = engine.HWEncoderName(enc.Name, encodeOpts.Preset.Codec)
+						break
+					}
+				}
+				if encodeOpts.HWEncoder != "" {
+					break
+				}
+			}
+		}
+		if encodeOpts.HWEncoder == "" {
+			fmt.Fprintf(os.Stderr, "Warning: no hardware encoder found for %s, using software\n", encodeOpts.Preset.Codec)
+		}
+	}
+
 	// Metadata handling
 	encodeOpts.MetadataMode = engine.MetadataFromFlags(flagStripMetadata, flagKeepMetadata, flagMetadataTitle)
+
+	// Extra FFmpeg arguments
+	if len(flagExtraArgs) > 0 {
+		encodeOpts.ExtraArgs = flagExtraArgs
+	}
 
 	// Dry-run mode: print command and exit
 	if flagDryRun {
@@ -384,59 +573,80 @@ func runHeadlessSingle(cmd *cobra.Command, cfg *config.Config, input string) err
 		cancel()
 	}()
 
-	// Start encoding
-	isTwoPass := engine.ShouldUseTwoPass(encodeOpts)
-	if isTwoPass {
-		if preset.TargetSizeMB > 0 {
-			dur := time.Duration(videoInfo.Duration * float64(time.Second))
-			audioBitrate := int64(128000)
-			if videoInfo.AudioBitrate > 0 {
-				audioBitrate = videoInfo.AudioBitrate
-			}
-			targetBytes := int64(preset.TargetSizeMB * 1024 * 1024)
-			encodeOpts.VideoBitrate = engine.CalculateBitrate(targetBytes, dur, audioBitrate)
-
-			adaptW, adaptH := engine.AdaptiveResolution(
-				targetBytes, dur,
-				videoInfo.Width, videoInfo.Height,
-				videoInfo.Framerate,
-			)
-			if adaptW < videoInfo.Width || adaptH < videoInfo.Height {
-				encodeOpts.ResolutionOverride = fmt.Sprintf("%dx%d", adaptW, adaptH)
-				fmt.Fprintf(os.Stderr, "  Adaptive resolution: %dx%d (for target size)\n", adaptW, adaptH)
-			}
-		}
-		fmt.Fprintf(os.Stderr, "Encoding (two-pass)...\n")
-	} else {
-		fmt.Fprintf(os.Stderr, "Encoding...\n")
-	}
+	// Start encoding (with HW fallback retry)
 	startTime := time.Now()
+	for attempt := 0; attempt < 2; attempt++ {
+		isTwoPass := engine.ShouldUseTwoPass(encodeOpts)
+		if isTwoPass {
+			if encodeOpts.Preset.TargetSizeMB > 0 {
+				dur := time.Duration(videoInfo.Duration * float64(time.Second))
+				audioBitrate := int64(128000)
+				if videoInfo.AudioBitrate > 0 {
+					audioBitrate = videoInfo.AudioBitrate
+				}
+				targetBytes := int64(encodeOpts.Preset.TargetSizeMB * 1024 * 1024)
+				encodeOpts.VideoBitrate = engine.CalculateBitrate(targetBytes, dur, audioBitrate)
 
-	var progressCh <-chan engine.ProgressUpdate
-	if isTwoPass {
-		progressCh, err = engine.EncodeTwoPass(ctx, encodeOpts)
-	} else {
-		progressCh, err = engine.Encode(ctx, encodeOpts)
-	}
-	if err != nil {
-		return fmt.Errorf("failed to start encoding: %w", err)
-	}
-
-	// Print progress updates
-	var lastUpdate engine.ProgressUpdate
-	for update := range progressCh {
-		lastUpdate = update
-		if update.Error != nil {
-			return fmt.Errorf("encoding failed: %w", update.Error)
+				adaptW, adaptH := engine.AdaptiveResolution(
+					targetBytes, dur,
+					videoInfo.Width, videoInfo.Height,
+					videoInfo.Framerate,
+				)
+				if adaptW < videoInfo.Width || adaptH < videoInfo.Height {
+					encodeOpts.ResolutionOverride = fmt.Sprintf("%dx%d", adaptW, adaptH)
+					fmt.Fprintf(os.Stderr, "  Adaptive resolution: %dx%d (for target size)\n", adaptW, adaptH)
+				}
+			}
+			fmt.Fprintf(os.Stderr, "Encoding (two-pass)...\n")
+		} else {
+			fmt.Fprintf(os.Stderr, "Encoding...\n")
 		}
-		if !update.Done {
-			fmt.Fprintf(os.Stderr, "\r  Progress: %5.1f%% | Speed: %.1fx | ETA: %s        ",
-				update.Percent, update.Speed, formatDurationShort(update.ETA))
-		}
-	}
 
-	if lastUpdate.Error != nil {
-		return fmt.Errorf("encoding failed: %w", lastUpdate.Error)
+		var progressCh <-chan engine.ProgressUpdate
+		if isTwoPass {
+			progressCh, err = engine.EncodeTwoPass(ctx, encodeOpts)
+		} else {
+			progressCh, err = engine.Encode(ctx, encodeOpts)
+		}
+		if err != nil {
+			if attempt == 0 && encodeOpts.HWEncoder != "" {
+				fmt.Fprintf(os.Stderr, "\nWarning: hardware encoding failed, falling back to software encoder\n")
+				encodeOpts.HWEncoder = ""
+				_ = os.Remove(tempPath)
+				continue
+			}
+			return fmt.Errorf("failed to start encoding: %w", err)
+		}
+
+		// Print progress updates
+		var lastUpdate engine.ProgressUpdate
+		var encodeErr error
+		for update := range progressCh {
+			lastUpdate = update
+			if update.Error != nil {
+				encodeErr = update.Error
+				break
+			}
+			if !update.Done {
+				fmt.Fprintf(os.Stderr, "\r  Progress: %5.1f%% | Speed: %.1fx | ETA: %s        ",
+					update.Percent, update.Speed, formatDurationShort(update.ETA))
+			}
+		}
+		if encodeErr == nil && lastUpdate.Error != nil {
+			encodeErr = lastUpdate.Error
+		}
+
+		if encodeErr != nil {
+			if attempt == 0 && encodeOpts.HWEncoder != "" {
+				fmt.Fprintf(os.Stderr, "\nWarning: hardware encoding failed, falling back to software encoder\n")
+				encodeOpts.HWEncoder = ""
+				_ = os.Remove(tempPath)
+				continue
+			}
+			return fmt.Errorf("encoding failed: %w", encodeErr)
+		}
+
+		break // success
 	}
 
 	elapsed := time.Since(startTime)
@@ -621,13 +831,81 @@ func runHeadlessBatch(cmd *cobra.Command, cfg *config.Config, inputs []string) e
 		maxRetries = 2
 	}
 
+	// Apply codec override
+	if flagCodec != "" {
+		preset.Codec = flagCodec
+	}
+
+	// Audio overrides
+	if cmd.Flags().Changed("audio-codec") {
+		preset.AudioCodec = flagAudioCodec
+	}
+	if cmd.Flags().Changed("audio-bitrate") {
+		preset.AudioBitrate = flagAudioBitrate
+	}
+	if cmd.Flags().Changed("audio-channels") {
+		switch flagAudioChannels {
+		case "stereo":
+			preset.AudioChannels = 2
+		case "mono":
+			preset.AudioChannels = 1
+		case "source":
+			preset.AudioChannels = 0
+		}
+	}
+
+	// Phase 3 overrides
+	if cmd.Flags().Changed("fps") {
+		preset.MaxFPS = flagFPS
+	}
+	if cmd.Flags().Changed("speed-preset") {
+		preset.SpeedPreset = flagSpeedPreset
+	}
+	if cmd.Flags().Changed("target-size") {
+		mb, _ := parseTargetSize(flagTargetSize)
+		preset.TargetSizeMB = mb
+		preset.TwoPass = true
+	}
+	if cmd.Flags().Changed("two-pass") {
+		preset.TwoPass = true
+	}
+
+	// HW encoder detection
+	var hwEncoder string
+	if flagHWAccel {
+		detectCtx := context.Background()
+		encoders, hwErr := engine.DetectHardware(detectCtx)
+		if hwErr == nil {
+			for _, enc := range encoders {
+				if !enc.Available {
+					continue
+				}
+				for _, c := range enc.Codecs {
+					if c == preset.Codec {
+						hwEncoder = engine.HWEncoderName(enc.Name, preset.Codec)
+						break
+					}
+				}
+				if hwEncoder != "" {
+					break
+				}
+			}
+		}
+		if hwEncoder == "" {
+			fmt.Fprintf(os.Stderr, "Warning: no hardware encoder found for %s, using software\n", preset.Codec)
+		}
+	}
+
 	batchOpts := engine.BatchOptions{
-		Jobs:       jobs,
-		Preset:     preset,
-		OutputOpts: outputOpts,
-		SkipOpts:   skipOpts,
-		MaxRetries: maxRetries,
-		OnSave:     saver.Save,
+		Jobs:         jobs,
+		Preset:       preset,
+		HWEncoder:    hwEncoder,
+		OutputOpts:   outputOpts,
+		SkipOpts:     skipOpts,
+		MaxRetries:   maxRetries,
+		OnSave:       saver.Save,
+		MetadataMode: engine.MetadataFromFlags(flagStripMetadata, flagKeepMetadata, flagMetadataTitle),
+		ExtraArgs:    flagExtraArgs,
 	}
 
 	startTime := time.Now()
@@ -806,6 +1084,12 @@ func buildOutputOpts(cfg *config.Config) engine.OutputOptions {
 
 	if flagSkipExisting {
 		opts.ConflictMode = engine.ConflictSkip
+	}
+	if flagOverwrite {
+		opts.ConflictMode = engine.ConflictOverwrite
+	}
+	if flagAutoRename {
+		opts.ConflictMode = engine.ConflictAutorename
 	}
 
 	return opts

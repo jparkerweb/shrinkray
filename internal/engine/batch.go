@@ -77,8 +77,10 @@ type BatchOptions struct {
 	HWEncoder   string
 	OutputOpts  OutputOptions
 	SkipOpts    SkipOptions
-	MaxRetries  int // max attempts per job (default 2)
-	OnSave      func() // called when queue state changes (for persistence)
+	MaxRetries   int // max attempts per job (default 2)
+	OnSave       func() // called when queue state changes (for persistence)
+	MetadataMode MetadataMode // metadata handling for batch jobs
+	ExtraArgs    []string     // extra FFmpeg arguments forwarded to each job
 }
 
 // RunBatch starts batch encoding with a worker pool. It returns a channel
@@ -234,34 +236,34 @@ func processJob(ctx context.Context, queue *JobQueue, job Job, opts BatchOptions
 	// Build encode options
 	tempPath := TempPath(outputPath)
 	encOpts := EncodeOptions{
-		Input:     job.InputPath,
-		Output:    tempPath,
-		Preset:    opts.Preset,
-		HWEncoder: opts.HWEncoder,
+		Input:        job.InputPath,
+		Output:       tempPath,
+		Preset:       opts.Preset,
+		HWEncoder:    opts.HWEncoder,
+		MetadataMode: opts.MetadataMode,
+		ExtraArgs:    opts.ExtraArgs,
 	}
 
-	// Get source info for target-size calculation
-	if opts.Preset.TargetSizeMB > 0 || isInPlace {
-		info, err := Probe(ctx, job.InputPath)
-		if err == nil {
-			encOpts.SourceInfo = info
-			if opts.Preset.TargetSizeMB > 0 {
-				dur := time.Duration(info.Duration * float64(time.Second))
-				audioBitrate := int64(128000)
-				if info.AudioBitrate > 0 {
-					audioBitrate = info.AudioBitrate
-				}
-				targetBytes := int64(opts.Preset.TargetSizeMB * 1024 * 1024)
-				encOpts.VideoBitrate = CalculateBitrate(targetBytes, dur, audioBitrate)
+	// Always probe for source info (needed for portrait/social scaling)
+	info, probeErr := Probe(ctx, job.InputPath)
+	if probeErr == nil {
+		encOpts.SourceInfo = info
+		if opts.Preset.TargetSizeMB > 0 {
+			dur := time.Duration(info.Duration * float64(time.Second))
+			audioBitrate := int64(128000)
+			if info.AudioBitrate > 0 {
+				audioBitrate = info.AudioBitrate
+			}
+			targetBytes := int64(opts.Preset.TargetSizeMB * 1024 * 1024)
+			encOpts.VideoBitrate = CalculateBitrate(targetBytes, dur, audioBitrate)
 
-				adaptW, adaptH := AdaptiveResolution(
-					targetBytes, dur,
-					info.Width, info.Height,
-					info.Framerate,
-				)
-				if adaptW < info.Width || adaptH < info.Height {
-					encOpts.ResolutionOverride = fmt.Sprintf("%dx%d", adaptW, adaptH)
-				}
+			adaptW, adaptH := AdaptiveResolution(
+				targetBytes, dur,
+				info.Width, info.Height,
+				info.Framerate,
+			)
+			if adaptW < info.Width || adaptH < info.Height {
+				encOpts.ResolutionOverride = fmt.Sprintf("%dx%d", adaptW, adaptH)
 			}
 		}
 	}
