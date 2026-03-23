@@ -5,7 +5,7 @@
 A cross-platform CLI video compression tool powered by FFmpeg,  
 featuring a wizard-style TUI built with Go and Charm's Bubble Tea.
 
-<img src=".docs/shrinkray.jpg" width="600">
+<img src="docs/shrinkray.jpg" width="600">
 
 ## Features
 
