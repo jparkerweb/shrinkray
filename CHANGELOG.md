@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-03-22
+
 ### Added
 - CLI headless parity — 13 new `--no-tui` flags: `--hw-accel`, `--no-hw-accel`, `--audio-codec`, `--audio-bitrate`, `--audio-channels`, `--fps`, `--speed-preset`, `--target-size`, `--two-pass`, `--overwrite`, `--auto-rename`, `--extra-args`
 - Batch metadata forwarding — `--strip-metadata` and `--metadata-title` now applied in batch mode via `BatchOptions`
@@ -47,5 +49,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Help overlay (`?` key) on all screens
 - GoReleaser build pipeline with GitHub Actions CI/CD
 
-[Unreleased]: https://github.com/jparkerweb/shrinkray/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/jparkerweb/shrinkray/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/jparkerweb/shrinkray/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/jparkerweb/shrinkray/releases/tag/v0.1.0
