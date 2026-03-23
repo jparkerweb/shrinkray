@@ -1,0 +1,2366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShrinkRay — Less bytes, same vibes</title>
+  <meta name="description" content="Cross-platform CLI video compression tool powered by FFmpeg. Smart presets, hardware acceleration, batch processing.">
+  <meta property="og:title" content="ShrinkRay — Less bytes, same vibes">
+  <meta property="og:description" content="CLI video compression with smart presets, HW acceleration, and batch processing">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+
+  <!-- ═══════════════════════════════════════════════════════
+       Base CSS — Neon Dusk Theme
+       ═══════════════════════════════════════════════════════ -->
+  <style>
+    :root {
+      --color-primary: #7B2FF7;
+      --color-secondary: #FF2D95;
+      --color-accent: #00F0FF;
+      --color-success: #39FF14;
+      --color-warning: #FFAB00;
+      --color-error: #FF4444;
+      --color-muted: #6C6C8A;
+      --color-bg: #1A1A2E;
+      --color-surface: #25253E;
+      --color-text: #E8E8F0;
+      --color-text-dim: #9999B3;
+      --color-border: #6C6C8A;
+      --gradient-brand: linear-gradient(135deg, #7B2FF7, #FF2D95);
+      --gradient-brand-h: linear-gradient(90deg, #7B2FF7, #FF2D95);
+      --gradient-glow: linear-gradient(135deg, #7B2FF7 0%, #FF2D95 50%, #00F0FF 100%);
+      --space-1: 0.25rem;
+      --space-2: 0.5rem;
+      --space-3: 0.75rem;
+      --space-4: 1rem;
+      --space-5: 1.25rem;
+      --space-6: 1.5rem;
+      --space-8: 2rem;
+      --space-10: 2.5rem;
+      --space-12: 3rem;
+      --space-16: 4rem;
+      --space-20: 5rem;
+      --space-24: 6rem;
+      --radius-sm: 0.25rem;
+      --radius-md: 0.5rem;
+      --radius-lg: 0.75rem;
+      --radius-xl: 1rem;
+      --radius-2xl: 1.5rem;
+      --radius-full: 9999px;
+      --text-xs: 0.75rem;
+      --text-sm: 0.875rem;
+      --text-base: 1rem;
+      --text-lg: 1.125rem;
+      --text-xl: 1.25rem;
+      --text-2xl: 1.5rem;
+      --text-3xl: 1.875rem;
+      --text-4xl: 2.25rem;
+      --text-5xl: 3rem;
+      --leading-tight: 1.15;
+      --leading-snug: 1.3;
+      --leading-normal: 1.6;
+      --leading-relaxed: 1.75;
+      --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'SF Mono', 'Consolas', monospace;
+      --transition-fast: 150ms ease;
+      --transition-base: 250ms ease;
+      --transition-slow: 400ms ease;
+      --transition-spring: 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.5);
+      --shadow-glow-primary: 0 0 20px rgba(123, 47, 247, 0.35);
+      --shadow-glow-accent: 0 0 20px rgba(0, 240, 255, 0.25);
+      --container-max: 1200px;
+      --section-padding-y: var(--space-20);
+      --section-padding-x: var(--space-6);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+      -moz-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+      scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    img, picture, video, canvas, svg { display: block; max-width: 100%; }
+    input, button, textarea, select { font: inherit; color: inherit; }
+    button { cursor: pointer; border: none; background: none; }
+    ul, ol { list-style: none; }
+    table { border-collapse: collapse; border-spacing: 0; }
+
+    body {
+      font-family: var(--font-sans);
+      font-size: var(--text-base);
+      line-height: var(--leading-normal);
+      color: var(--color-text);
+      background-color: var(--color-bg);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4, h5, h6 { line-height: var(--leading-tight); font-weight: 700; color: var(--color-text); }
+    h1 { font-size: var(--text-4xl); }
+    h2 { font-size: var(--text-3xl); }
+    h3 { font-size: var(--text-2xl); }
+    h4 { font-size: var(--text-xl); }
+    @media (min-width: 768px) {
+      h1 { font-size: var(--text-5xl); }
+      h2 { font-size: var(--text-4xl); }
+      h3 { font-size: var(--text-3xl); }
+    }
+
+    p { line-height: var(--leading-normal); color: var(--color-text-dim); }
+    strong, b { font-weight: 600; }
+    small { font-size: var(--text-sm); }
+
+    a { color: var(--color-accent); text-decoration: none; transition: color var(--transition-fast); }
+    a:hover { color: var(--color-primary); }
+    a:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; border-radius: var(--radius-sm); }
+
+    code { font-family: var(--font-mono); font-size: 0.9em; background: var(--color-surface); color: var(--color-accent); padding: 0.15em 0.4em; border-radius: var(--radius-sm); border: 1px solid rgba(108, 108, 138, 0.3); }
+    pre { font-family: var(--font-mono); font-size: var(--text-sm); line-height: var(--leading-normal); background: var(--color-surface); color: var(--color-text); padding: var(--space-6); border-radius: var(--radius-lg); border: 1px solid rgba(108, 108, 138, 0.2); overflow-x: auto; }
+    pre code { background: none; border: none; padding: 0; font-size: inherit; color: inherit; }
+
+    .container { width: 100%; max-width: var(--container-max); margin-inline: auto; padding-inline: var(--space-6); }
+    @media (min-width: 1280px) { .container { padding-inline: var(--space-8); } }
+
+    .section-padding { padding-block: var(--space-16); padding-inline: var(--section-padding-x); }
+    @media (min-width: 640px) { .section-padding { padding-block: var(--space-20); } }
+    @media (min-width: 1024px) { .section-padding { padding-block: var(--space-24); } }
+
+    .gradient-text { background: var(--gradient-brand); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0; }
+
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--color-bg); }
+    ::-webkit-scrollbar-thumb { background: var(--color-muted); border-radius: var(--radius-full); border: 2px solid var(--color-bg); }
+    ::-webkit-scrollbar-thumb:hover { background: var(--color-primary); }
+    * { scrollbar-width: thin; scrollbar-color: var(--color-muted) var(--color-bg); }
+    ::selection { background: rgba(123, 47, 247, 0.4); color: var(--color-text); }
+
+    /* ── Section Divider ── */
+    .section-divider {
+      height: 1px;
+      border: none;
+      background: linear-gradient(90deg, transparent, rgba(123,47,247,0.3) 20%, rgba(255,45,149,0.3) 50%, rgba(0,240,255,0.3) 80%, transparent);
+      margin: 0;
+    }
+
+    /* ── Scroll Animations ── */
+    .animate-on-scroll {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+    .animate-on-scroll.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+
+  <!-- ═══════════════════════════════════════════════════════
+       Navbar CSS
+       ═══════════════════════════════════════════════════════ -->
+  <style>
+    .site-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background: rgba(26, 26, 46, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(123, 47, 247, 0.15);
+      height: 64px;
+    }
+    .nav-inner {
+      max-width: var(--container-max);
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 100%;
+      padding: 0 var(--space-6);
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 1.25rem;
+      font-weight: 800;
+      text-decoration: none;
+      color: var(--color-text);
+    }
+    .nav-logo-icon { font-size: 1.1rem; }
+    .nav-logo-text {
+      background: var(--gradient-brand);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .nav-version {
+      font-size: 0.6rem;
+      padding: 0.15rem 0.4rem;
+      border-radius: 999px;
+      background: rgba(123, 47, 247, 0.15);
+      border: 1px solid rgba(123, 47, 247, 0.3);
+      color: var(--color-accent);
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      margin-left: 0.35rem;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      list-style: none;
+    }
+    .nav-links a {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--color-text-dim);
+      text-decoration: none;
+      transition: color 0.2s;
+      position: relative;
+    }
+    .nav-links a:hover,
+    .nav-links a.active {
+      color: var(--color-text);
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--gradient-brand-h);
+      border-radius: 2px;
+      transition: width 0.2s;
+    }
+    .nav-links a:hover::after,
+    .nav-links a.active::after {
+      width: 100%;
+    }
+    .nav-github {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.4rem 0.9rem;
+      border-radius: 8px;
+      border: 1px solid rgba(123, 47, 247, 0.4);
+      background: rgba(123, 47, 247, 0.1);
+      color: var(--color-text) !important;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .nav-github:hover {
+      background: rgba(123, 47, 247, 0.2);
+      border-color: rgba(123, 47, 247, 0.6);
+    }
+    .nav-github::after { display: none !important; }
+    .nav-github svg { width: 16px; height: 16px; fill: currentColor; }
+
+    /* Hamburger */
+    .nav-toggle { display: none; }
+    .nav-hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 4px;
+      z-index: 1001;
+    }
+    .nav-hamburger span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--color-text);
+      border-radius: 2px;
+      transition: transform 0.3s, opacity 0.3s;
+    }
+    .nav-toggle:checked ~ .nav-hamburger span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav-toggle:checked ~ .nav-hamburger span:nth-child(2) { opacity: 0; }
+    .nav-toggle:checked ~ .nav-hamburger span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    @media (max-width: 768px) {
+      .nav-hamburger { display: flex; }
+      .nav-links {
+        position: fixed;
+        top: 64px;
+        left: 0;
+        right: 0;
+        background: rgba(26, 26, 46, 0.97);
+        backdrop-filter: blur(16px);
+        flex-direction: column;
+        padding: 2rem;
+        gap: 1.5rem;
+        transform: translateY(-120%);
+        transition: transform 0.3s ease;
+        border-bottom: 1px solid rgba(123, 47, 247, 0.2);
+      }
+      .nav-toggle:checked ~ .nav-links {
+        transform: translateY(0);
+      }
+    }
+
+    .nav-scrolled {
+      background: rgba(26, 26, 46, 0.95);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+  </style>
+
+  <!-- ═══════════════════════════════════════════════════════
+       Hero CSS
+       ═══════════════════════════════════════════════════════ -->
+  <style>
+    .hero-section {
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 4rem 1.5rem;
+      background: #1A1A2E;
+    }
+    .hero-stars, .hero-stars-sm, .hero-stars-lg {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    .hero-stars {
+      background-image:
+        radial-gradient(1.5px 1.5px at  10%  15%, rgba(0,240,255,0.7) 50%, transparent 50%),
+        radial-gradient(1px   1px   at  25%  35%, rgba(123,47,247,0.5) 50%, transparent 50%),
+        radial-gradient(1.5px 1.5px at  45%   8%, rgba(255,45,149,0.6) 50%, transparent 50%),
+        radial-gradient(1px   1px   at  60%  55%, rgba(0,240,255,0.4)  50%, transparent 50%),
+        radial-gradient(2px   2px   at  80%  20%, rgba(255,45,149,0.5) 50%, transparent 50%),
+        radial-gradient(1px   1px   at  90%  70%, rgba(123,47,247,0.6) 50%, transparent 50%),
+        radial-gradient(1.5px 1.5px at  15%  80%, rgba(0,240,255,0.5)  50%, transparent 50%),
+        radial-gradient(1px   1px   at  70%  90%, rgba(255,45,149,0.4) 50%, transparent 50%),
+        radial-gradient(1px   1px   at  35%  60%, rgba(232,232,240,0.3) 50%, transparent 50%),
+        radial-gradient(1.5px 1.5px at  55%  40%, rgba(232,232,240,0.25) 50%, transparent 50%);
+      animation: hero-twinkle 4s ease-in-out infinite alternate;
+    }
+    .hero-stars-sm {
+      background-image:
+        radial-gradient(1px 1px at  5%  45%, rgba(0,240,255,0.5) 50%, transparent 50%),
+        radial-gradient(1px 1px at 18%  62%, rgba(255,45,149,0.4) 50%, transparent 50%),
+        radial-gradient(1px 1px at 33%  28%, rgba(123,47,247,0.5) 50%, transparent 50%),
+        radial-gradient(1px 1px at 52%  78%, rgba(0,240,255,0.3) 50%, transparent 50%),
+        radial-gradient(1px 1px at 68%  12%, rgba(232,232,240,0.3) 50%, transparent 50%),
+        radial-gradient(1px 1px at 85%  52%, rgba(255,45,149,0.35) 50%, transparent 50%),
+        radial-gradient(1px 1px at 95%  38%, rgba(123,47,247,0.4) 50%, transparent 50%),
+        radial-gradient(1px 1px at 42%  92%, rgba(0,240,255,0.4) 50%, transparent 50%);
+      animation: hero-twinkle 6s ease-in-out 1s infinite alternate;
+    }
+    .hero-stars-lg {
+      background-image:
+        radial-gradient(2.5px 2.5px at 12% 25%, rgba(0,240,255,0.6) 50%, transparent 50%),
+        radial-gradient(2px   2px   at 48% 18%, rgba(255,45,149,0.5) 50%, transparent 50%),
+        radial-gradient(2.5px 2.5px at 78% 65%, rgba(123,47,247,0.55) 50%, transparent 50%),
+        radial-gradient(2px   2px   at 30% 75%, rgba(232,232,240,0.35) 50%, transparent 50%),
+        radial-gradient(2px   2px   at 62% 42%, rgba(0,240,255,0.4) 50%, transparent 50%);
+      animation: hero-twinkle 5s ease-in-out 2s infinite alternate;
+    }
+    @keyframes hero-twinkle { 0% { opacity: 0.6; } 100% { opacity: 1; } }
+    .hero-beam { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+    .hero-beam::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -60%;
+      width: 40%;
+      height: 220%;
+      background: linear-gradient(105deg, transparent 0%, transparent 40%, rgba(123,47,247,0.07) 45%, rgba(0,240,255,0.13) 50%, rgba(255,45,149,0.07) 55%, transparent 60%, transparent 100%);
+      animation: hero-sweep 6s ease-in-out infinite;
+    }
+    @keyframes hero-sweep { 0% { transform: translateX(0); } 100% { transform: translateX(260%); } }
+    .hero-content { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 1.5rem; max-width: 960px; text-align: center; }
+    .hero-badge { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.9rem; border-radius: 999px; border: 1px solid rgba(123,47,247,0.5); background: rgba(123,47,247,0.12); font-size: 0.8rem; font-weight: 600; letter-spacing: 0.04em; color: #00F0FF; text-transform: uppercase; backdrop-filter: blur(6px); }
+    .hero-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: #00F0FF; box-shadow: 0 0 6px #00F0FF; animation: hero-pulse-dot 2s ease-in-out infinite; }
+    @keyframes hero-pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    .hero-title { font-size: clamp(3.5rem, 10vw, 8rem); font-weight: 900; line-height: 1; letter-spacing: -0.03em; background: linear-gradient(135deg, #7B2FF7 0%, #FF2D95 40%, #00F0FF 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; filter: drop-shadow(0 0 40px rgba(123,47,247,0.35)); }
+    .hero-tagline { font-size: clamp(1.1rem, 2.5vw, 1.5rem); font-weight: 400; color: rgba(232,232,240,0.75); letter-spacing: 0.01em; max-width: 520px; }
+    .hero-tagline em { font-style: normal; color: #E8E8F0; font-weight: 600; }
+    .hero-image-wrap { position: relative; margin: 1rem 0; border-radius: 16px; overflow: hidden; max-width: 640px; width: 100%; box-shadow: 0 0 0 1px rgba(123,47,247,0.25), 0 4px 30px rgba(123,47,247,0.2), 0 0 80px -20px rgba(0,240,255,0.15); }
+    .hero-image-wrap::before { content: ''; position: absolute; inset: -2px; border-radius: 18px; background: linear-gradient(135deg, #7B2FF7, #FF2D95, #00F0FF); z-index: -1; opacity: 0.6; }
+    .hero-image { display: block; width: 100%; height: auto; border-radius: 14px; border: 2px solid rgba(26,26,46,0.8); }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin-top: 0.5rem; }
+    .hero-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.85rem 2rem; border-radius: 12px; font-size: 1rem; font-weight: 600; text-decoration: none; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease; letter-spacing: 0.01em; }
+    .hero-btn:hover { transform: translateY(-2px); }
+    .hero-btn:active { transform: translateY(0); }
+    .hero-btn--primary { background: linear-gradient(135deg, #7B2FF7, #FF2D95); color: #E8E8F0; border: none; box-shadow: 0 4px 24px rgba(123,47,247,0.35); }
+    .hero-btn--primary:hover { box-shadow: 0 6px 32px rgba(123,47,247,0.5); }
+    .hero-btn--outline { background: transparent; color: #E8E8F0; border: 2px solid rgba(0,240,255,0.5); box-shadow: 0 0 12px rgba(0,240,255,0.08); }
+    .hero-btn--outline:hover { background: rgba(0,240,255,0.08); border-color: #00F0FF; box-shadow: 0 0 20px rgba(0,240,255,0.15); }
+    .hero-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+    .hero-note { font-size: 0.85rem; color: rgba(232,232,240,0.4); margin-top: -0.25rem; }
+    .hero-glow { position: absolute; border-radius: 50%; filter: blur(100px); pointer-events: none; z-index: 0; }
+    .hero-glow--violet { width: 500px; height: 500px; background: rgba(123,47,247,0.15); top: -10%; left: -8%; }
+    .hero-glow--pink { width: 400px; height: 400px; background: rgba(255,45,149,0.1); bottom: -5%; right: -5%; }
+    .hero-glow--cyan { width: 350px; height: 350px; background: rgba(0,240,255,0.08); top: 40%; right: 15%; }
+    @media (max-width: 640px) {
+      .hero-section { padding: 3rem 1rem; }
+      .hero-content { gap: 1.25rem; }
+      .hero-actions { flex-direction: column; width: 100%; }
+      .hero-btn { justify-content: center; width: 100%; }
+      .hero-image-wrap { border-radius: 12px; }
+      .hero-image { border-radius: 10px; }
+    }
+  </style>
+
+  <!-- ═══════════════════════════════════════════════════════
+       Stats CSS
+       ═══════════════════════════════════════════════════════ -->
+  <style>
+    .stats-section {
+      padding: 4rem 1.5rem;
+      background: #1A1A2E;
+    }
+    .stats-grid {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      flex-wrap: wrap;
+      max-width: var(--container-max);
+      margin: 0 auto;
+    }
+    .stat-item {
+      text-align: center;
+      min-width: 120px;
+    }
+    .stat-number {
+      font-size: clamp(2.5rem, 6vw, 3.5rem);
+      font-weight: 900;
+      line-height: 1;
+      background: linear-gradient(135deg, #7B2FF7, #FF2D95);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--color-text-dim);
+      font-weight: 500;
+    }
+    @media (max-width: 640px) {
+      .stats-grid { gap: 1.5rem; }
+      .stat-item { min-width: 80px; }
+    }
+  </style>
+
+  <!-- ═══════════════════════════════════════════════════════
+       Features Grid CSS
+       ═══════════════════════════════════════════════════════ -->
+  <style>
+    .features-section {
+      padding: 5rem 1.5rem;
+      background: #1A1A2E;
+    }
+    .features-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    .features-label {
+      display: inline-block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #00F0FF;
+      margin-bottom: 0.75rem;
+    }
+    .features-title {
+      font-size: clamp(2rem, 5vw, 2.75rem);
+      font-weight: 800;
+      background: var(--gradient-brand);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 1rem;
+    }
+    .features-subtitle {
+      font-size: 1.05rem;
+      color: var(--color-text-dim);
+      max-width: 540px;
+      margin: 0 auto;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      max-width: var(--container-max);
+      margin: 0 auto;
+    }
+    .feature-card {
+      padding: 2rem 1.5rem;
+      border-radius: 16px;
+      background: var(--color-surface);
+      border: 1px solid rgba(108, 108, 138, 0.15);
+      backdrop-filter: blur(8px);
+      transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+    .feature-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(123, 47, 247, 0.4);
+      box-shadow: 0 8px 30px rgba(123, 47, 247, 0.15);
+    }
+    .feature-icon { font-size: 2rem; margin-bottom: 1rem; display: block; }
+    .feature-name { font-size: 1.1rem; font-weight: 700; color: var(--color-text); margin-bottom: 0.5rem; }
+    .feature-desc { font-size: 0.9rem; color: var(--color-text-dim); line-height: 1.6; }
+    @media (max-width: 768px) { .features-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 480px) { .features-grid { grid-template-columns: 1fr; } }
+  </style>
+
+  <!-- ═══════════════════════════════════════════════════════
+       Terminal Demo CSS
+       ═══════════════════════════════════════════════════════ -->
+  <style>
+    .demo-section {
+      padding: 5rem 1.5rem;
+      background: #1A1A2E;
+    }
+    .demo-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    .demo-label {
+      display: inline-block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #00F0FF;
+      margin-bottom: 0.75rem;
+    }
+    .demo-title {
+      font-size: clamp(2rem, 5vw, 2.75rem);
+      font-weight: 800;
+      background: var(--gradient-brand);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .demo-terminal {
+      max-width: 800px;
+      margin: 0 auto;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(123, 47, 247, 0.25);
+      box-shadow: 0 4px 30px rgba(123, 47, 247, 0.15), 0 0 80px -30px rgba(0, 240, 255, 0.1);
+      position: relative;
+    }
+    .demo-terminal-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      background: rgba(37, 37, 62, 0.95);
+      border-bottom: 1px solid rgba(123, 47, 247, 0.15);
+    }
+    .demo-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .demo-dot:nth-child(1) { background: #FF5F57; }
+    .demo-dot:nth-child(2) { background: #FFBD2E; }
+    .demo-dot:nth-child(3) { background: #28CA41; }
+    .demo-terminal-title {
+      flex: 1;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--color-muted);
+      font-family: var(--font-mono);
+    }
+    .demo-terminal-body {
+      background: rgba(20, 20, 35, 0.97);
+      padding: 1.5rem 2rem;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      line-height: 1.8;
+      position: relative;
+      overflow: hidden;
+    }
+    .demo-terminal-body::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 240, 255, 0.015) 2px, rgba(0, 240, 255, 0.015) 4px);
+      pointer-events: none;
+    }
+    .demo-line { margin-bottom: 0.3rem; }
+    .demo-prompt { color: #39FF14; font-weight: 700; }
+    .demo-cmd { color: #E8E8F0; }
+    .demo-flag { color: #00F0FF; }
+    .demo-value { color: #FF2D95; }
+    .demo-comment { color: #6C6C8A; font-style: italic; }
+    .demo-output { color: rgba(232, 232, 240, 0.6); }
+    .demo-success { color: #39FF14; }
+    .demo-cursor {
+      display: inline-block;
+      width: 8px;
+      height: 1.1em;
+      background: #39FF14;
+      vertical-align: text-bottom;
+      margin-left: 2px;
+      animation: demo-blink 1s step-end infinite;
+    }
+    @keyframes demo-blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
+    @media (max-width: 640px) {
+      .demo-terminal-body { font-size: 0.72rem; padding: 1rem 1.25rem; }
+    }
+  </style>
+
+  <!-- ═══════════════════════════════════════════════════════
+       Presets Showcase CSS
+       ═══════════════════════════════════════════════════════ -->
+  <style>
+    .presets-section {
+      padding: 5rem 1.5rem;
+      background: #1A1A2E;
+    }
+    .presets-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    .presets-label {
+      display: inline-block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #00F0FF;
+      margin-bottom: 0.75rem;
+    }
+    .presets-title {
+      font-size: clamp(2rem, 5vw, 2.75rem);
+      font-weight: 800;
+      background: var(--gradient-brand);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 1rem;
+    }
+    .presets-subtitle {
+      font-size: 1.05rem;
+      color: var(--color-text-dim);
+      max-width: 560px;
+      margin: 0 auto;
+    }
+    .presets-tabs {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .presets-tab-input { display: none; }
+    .presets-tab-labels {
+      display: flex;
+      gap: 0;
+      border-bottom: 2px solid rgba(108, 108, 138, 0.2);
+      margin-bottom: 2rem;
+    }
+    .presets-tab-label {
+      flex: 1;
+      text-align: center;
+      padding: 0.85rem 1rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--color-text-dim);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .presets-tab-label:hover { color: var(--color-text); }
+    #presets-tab-quality:checked ~ .presets-tab-labels label[for="presets-tab-quality"],
+    #presets-tab-purpose:checked ~ .presets-tab-labels label[for="presets-tab-purpose"],
+    #presets-tab-platform:checked ~ .presets-tab-labels label[for="presets-tab-platform"] {
+      color: var(--color-text);
+      border-bottom-color: var(--color-primary);
+    }
+    .presets-tab-panel { display: none; }
+    #presets-tab-quality:checked ~ .presets-tab-panels .presets-panel-quality,
+    #presets-tab-purpose:checked ~ .presets-tab-panels .presets-panel-purpose,
+    #presets-tab-platform:checked ~ .presets-tab-panels .presets-panel-platform {
+      display: grid;
+    }
+    .presets-tab-panel {
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1rem;
+    }
+    .preset-card {
+      position: relative;
+      padding: 1.25rem;
+      border-radius: 12px;
+      background: var(--color-surface);
+      border: 1px solid rgba(108, 108, 138, 0.15);
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+    .preset-card:hover {
+      border-color: rgba(123, 47, 247, 0.4);
+      box-shadow: 0 4px 20px rgba(123, 47, 247, 0.12);
+    }
+    .preset-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--color-text);
+      margin-bottom: 0.35rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .preset-badge-recommended {
+      font-size: 0.6rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 999px;
+      background: rgba(57, 255, 20, 0.12);
+      border: 1px solid rgba(57, 255, 20, 0.3);
+      color: #39FF14;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .preset-desc {
+      font-size: 0.8rem;
+      color: var(--color-text-dim);
+      line-height: 1.5;
+      margin-bottom: 0.5rem;
+    }
+    .preset-meta {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--color-accent);
+    }
+    .preset-brand-color {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 0.3rem;
+      vertical-align: middle;
+    }
+    @media (max-width: 640px) {
+      .presets-tab-label { font-size: 0.8rem; padding: 0.65rem 0.5rem; }
+    }
+  </style>
+
+  <!-- ═══════════════════════════════════════════════════════
+       Comparison Table CSS
+       ═══════════════════════════════════════════════════════ -->
+  <style>
+    .comparison-section {
+      padding: 5rem 1.5rem;
+      background: #1A1A2E;
+    }
+    .comparison-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    .comparison-title {
+      font-size: clamp(2rem, 5vw, 2.75rem);
+      font-weight: 800;
+      background: var(--gradient-brand);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 1rem;
+    }
+    .comparison-subtitle {
+      font-size: 1.05rem;
+      color: var(--color-text-dim);
+    }
+    .comparison-table-wrap {
+      max-width: 900px;
+      margin: 0 auto;
+      overflow-x: auto;
+      border-radius: 16px;
+      border: 1px solid rgba(108, 108, 138, 0.2);
+      background: var(--color-surface);
+    }
+    .comparison-table {
+      width: 100%;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+    .comparison-table th {
+      padding: 1rem 1.25rem;
+      font-weight: 700;
+      color: var(--color-text-dim);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border-bottom: 1px solid rgba(108, 108, 138, 0.2);
+      background: rgba(26, 26, 46, 0.5);
+    }
+    .comparison-table th.highlight-col {
+      color: var(--color-text);
+      background: rgba(123, 47, 247, 0.1);
+      border-bottom-color: rgba(123, 47, 247, 0.3);
+    }
+    .comparison-table td {
+      padding: 0.85rem 1.25rem;
+      border-bottom: 1px solid rgba(108, 108, 138, 0.1);
+      color: var(--color-text-dim);
+    }
+    .comparison-table td.highlight-col {
+      background: rgba(123, 47, 247, 0.05);
+      color: var(--color-text);
+      font-weight: 500;
+    }
+    .comparison-table tr:last-child td { border-bottom: none; }
+    .comparison-table .feature-label { color: var(--color-text); font-weight: 600; }
+    .check { color: #39FF14; font-weight: 700; }
+    .cross { color: rgba(108, 108, 138, 0.5); }
+    .partial { color: #FFAB00; }
+    @media (max-width: 640px) {
+      .comparison-table { font-size: 0.78rem; }
+      .comparison-table th, .comparison-table td { padding: 0.65rem 0.75rem; }
+    }
+  </style>
+
+  <!-- ═══════════════════════════════════════════════════════
+       Install Section CSS
+       ═══════════════════════════════════════════════════════ -->
+  <style>
+    .install-section {
+      padding: 5rem 1.5rem;
+      background: #1A1A2E;
+    }
+    .install-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    .install-label {
+      display: inline-block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #00F0FF;
+      margin-bottom: 0.75rem;
+    }
+    .install-title {
+      font-size: clamp(2rem, 5vw, 2.75rem);
+      font-weight: 800;
+      background: var(--gradient-brand);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .install-tabs {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .install-tab-input { display: none; }
+    .install-tab-labels {
+      display: flex;
+      gap: 0;
+      border-bottom: 2px solid rgba(108, 108, 138, 0.2);
+      margin-bottom: 1.5rem;
+    }
+    .install-tab-label {
+      flex: 1;
+      text-align: center;
+      padding: 0.75rem 0.5rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--color-text-dim);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .install-tab-label:hover { color: var(--color-text); }
+    #install-tab-releases:checked ~ .install-tab-labels label[for="install-tab-releases"],
+    #install-tab-shell:checked ~ .install-tab-labels label[for="install-tab-shell"],
+    #install-tab-ps:checked ~ .install-tab-labels label[for="install-tab-ps"],
+    #install-tab-go:checked ~ .install-tab-labels label[for="install-tab-go"] {
+      color: var(--color-text);
+      border-bottom-color: var(--color-primary);
+    }
+    .install-panel { display: none; }
+    #install-tab-releases:checked ~ .install-panels .install-panel-releases,
+    #install-tab-shell:checked ~ .install-panels .install-panel-shell,
+    #install-tab-ps:checked ~ .install-panels .install-panel-ps,
+    #install-tab-go:checked ~ .install-panels .install-panel-go {
+      display: block;
+    }
+    .install-code-block {
+      position: relative;
+      background: rgba(20, 20, 35, 0.95);
+      border: 1px solid rgba(123, 47, 247, 0.2);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--color-text);
+      line-height: 1.7;
+      overflow-x: auto;
+    }
+    .install-copy-btn {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      padding: 0.35rem 0.65rem;
+      border-radius: 6px;
+      border: 1px solid rgba(123, 47, 247, 0.3);
+      background: rgba(123, 47, 247, 0.1);
+      color: var(--color-text-dim);
+      font-size: 0.7rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .install-copy-btn:hover {
+      background: rgba(123, 47, 247, 0.25);
+      color: var(--color-text);
+    }
+    .install-note {
+      margin-top: 1rem;
+      font-size: 0.82rem;
+      color: var(--color-text-dim);
+      text-align: center;
+    }
+    .install-note a { color: var(--color-accent); }
+    @media (max-width: 640px) {
+      .install-tab-label { font-size: 0.75rem; padding: 0.6rem 0.3rem; }
+      .install-code-block { font-size: 0.75rem; padding: 1rem; }
+    }
+  </style>
+
+  <!-- ═══════════════════════════════════════════════════════
+       Footer CSS
+       ═══════════════════════════════════════════════════════ -->
+  <style>
+    .site-footer {
+      position: relative;
+      padding: 4rem 1.5rem 2rem;
+      background: #1A1A2E;
+      text-align: center;
+    }
+    .site-footer::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #7B2FF7 20%, #FF2D95 50%, #00F0FF 80%, transparent);
+    }
+    .footer-inner {
+      max-width: var(--container-max);
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+    }
+    .footer-logo {
+      font-size: 1.5rem;
+      font-weight: 800;
+      background: var(--gradient-brand);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .footer-tagline {
+      font-size: 0.9rem;
+      color: var(--color-text-dim);
+      margin-top: -1rem;
+    }
+    .footer-links {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .footer-links a {
+      font-size: 0.85rem;
+      color: var(--color-text-dim);
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--color-text); }
+    .footer-star-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1.5rem;
+      border-radius: 10px;
+      background: var(--gradient-brand);
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(123, 47, 247, 0.3);
+    }
+    .footer-star-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(123, 47, 247, 0.45); }
+    .footer-star-btn svg { width: 16px; height: 16px; fill: currentColor; }
+    .footer-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.78rem;
+      color: rgba(232, 232, 240, 0.35);
+    }
+    .footer-mit {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      background: rgba(57, 255, 20, 0.08);
+      border: 1px solid rgba(57, 255, 20, 0.2);
+      color: #39FF14;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+  </style>
+
+  <!-- ═══════════════════════════════════════════════════════
+       Section-specific CSS from agent files
+       ═══════════════════════════════════════════════════════ -->
+  <style>
+    /* ── HW Acceleration Section ── */
+    .hw-section { position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; padding: 6rem 1.5rem; background: #1A1A2E; color: #E8E8F0; }
+    .hw-glow { position: absolute; border-radius: 50%; filter: blur(120px); pointer-events: none; z-index: 0; }
+    .hw-glow--left { width: 450px; height: 450px; background: rgba(123,47,247,0.12); top: 10%; left: -8%; }
+    .hw-glow--right { width: 400px; height: 400px; background: rgba(0,240,255,0.08); bottom: 5%; right: -5%; }
+    .hw-content { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 1.25rem; max-width: 1100px; width: 100%; text-align: center; }
+    .hw-label { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.3rem 1rem; border-radius: 999px; border: 1px solid rgba(0,240,255,0.35); background: rgba(0,240,255,0.08); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; color: #00F0FF; text-transform: uppercase; backdrop-filter: blur(6px); }
+    .hw-label svg { width: 14px; height: 14px; }
+    .hw-title { font-size: clamp(2rem, 5vw, 3.25rem); font-weight: 900; line-height: 1.1; letter-spacing: -0.02em; background: linear-gradient(135deg, #00F0FF 0%, #7B2FF7 50%, #FF2D95 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; filter: drop-shadow(0 0 30px rgba(0,240,255,0.2)); }
+    .hw-subtitle { font-size: clamp(0.95rem, 2vw, 1.15rem); color: rgba(232,232,240,0.6); max-width: 600px; line-height: 1.6; }
+    .hw-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; width: 100%; margin-top: 1.5rem; }
+    .hw-card { position: relative; display: flex; flex-direction: column; align-items: center; gap: 0.9rem; padding: 2rem 1.25rem 1.75rem; border-radius: 16px; background: #25253E; border: 1px solid rgba(232,232,240,0.08); transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease; }
+    .hw-card:hover { transform: translateY(-4px); }
+    .hw-card--nvidia:hover { border-color: rgba(118,185,0,0.4); box-shadow: 0 8px 40px rgba(118,185,0,0.12); }
+    .hw-card--amd:hover { border-color: rgba(237,28,36,0.4); box-shadow: 0 8px 40px rgba(237,28,36,0.12); }
+    .hw-card--apple:hover { border-color: rgba(180,180,195,0.4); box-shadow: 0 8px 40px rgba(180,180,195,0.1); }
+    .hw-card--intel:hover { border-color: rgba(0,133,202,0.4); box-shadow: 0 8px 40px rgba(0,133,202,0.12); }
+    .hw-icon { display: flex; align-items: center; justify-content: center; width: 56px; height: 56px; border-radius: 14px; font-size: 1.5rem; font-weight: 900; letter-spacing: -0.02em; }
+    .hw-icon--nvidia { background: rgba(118,185,0,0.15); color: #76B900; border: 1px solid rgba(118,185,0,0.25); }
+    .hw-icon--amd { background: rgba(237,28,36,0.12); color: #ED1C24; border: 1px solid rgba(237,28,36,0.2); }
+    .hw-icon--apple { background: rgba(180,180,195,0.1); color: #B4B4C3; border: 1px solid rgba(180,180,195,0.18); }
+    .hw-icon--intel { background: rgba(0,133,202,0.12); color: #0085CA; border: 1px solid rgba(0,133,202,0.22); }
+    .hw-icon svg { width: 26px; height: 26px; }
+    .hw-card-name { font-size: 1.05rem; font-weight: 700; color: #E8E8F0; letter-spacing: 0.01em; }
+    .hw-card-desc { font-size: 0.82rem; color: rgba(232,232,240,0.5); line-height: 1.55; }
+    .hw-auto-badge { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.25rem 0.75rem; border-radius: 999px; background: rgba(57,255,20,0.1); border: 1px solid rgba(57,255,20,0.25); font-size: 0.7rem; font-weight: 600; color: #39FF14; letter-spacing: 0.04em; text-transform: uppercase; margin-top: auto; }
+    .hw-auto-badge svg { width: 12px; height: 12px; }
+    .hw-speed { display: flex; flex-direction: column; gap: 1rem; width: 100%; max-width: 620px; margin-top: 2.5rem; text-align: left; }
+    .hw-speed-title { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(232,232,240,0.45); text-align: center; }
+    .hw-speed-row { display: flex; align-items: center; gap: 1rem; }
+    .hw-speed-label { flex-shrink: 0; width: 100px; font-size: 0.82rem; font-weight: 600; color: rgba(232,232,240,0.7); text-align: right; }
+    .hw-speed-track { flex: 1; height: 32px; border-radius: 8px; background: rgba(232,232,240,0.05); overflow: hidden; position: relative; }
+    .hw-speed-bar { height: 100%; border-radius: 8px; display: flex; align-items: center; justify-content: flex-end; padding-right: 0.75rem; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.02em; transition: width 1s ease; }
+    .hw-speed-bar--sw { width: 14%; background: linear-gradient(90deg, rgba(232,232,240,0.12), rgba(232,232,240,0.2)); color: rgba(232,232,240,0.5); }
+    .hw-speed-bar--hw { width: 100%; background: linear-gradient(90deg, #7B2FF7, #FF2D95, #00F0FF); color: #E8E8F0; box-shadow: 0 0 20px rgba(123,47,247,0.3); animation: hw-bar-glow 2s ease-in-out infinite alternate; }
+    @keyframes hw-bar-glow { 0% { box-shadow: 0 0 15px rgba(123,47,247,0.25); } 100% { box-shadow: 0 0 30px rgba(0,240,255,0.3); } }
+    .hw-speed-mult { flex-shrink: 0; width: 48px; font-size: 0.85rem; font-weight: 800; color: #E8E8F0; }
+    .hw-speed-mult--dim { color: rgba(232,232,240,0.4); }
+    .hw-speed-mult--bright { color: #39FF14; text-shadow: 0 0 8px rgba(57,255,20,0.4); }
+    .hw-tagline { margin-top: 2rem; font-size: clamp(0.85rem, 1.8vw, 1rem); color: rgba(232,232,240,0.5); text-align: center; line-height: 1.6; }
+    .hw-tagline strong { color: #00F0FF; font-weight: 600; }
+    @media (max-width: 900px) { .hw-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 540px) { .hw-section { padding: 4rem 1rem; } .hw-grid { grid-template-columns: 1fr; gap: 1rem; } .hw-card { padding: 1.5rem 1rem; } .hw-speed-label { width: 72px; font-size: 0.75rem; } .hw-speed-mult { width: 40px; font-size: 0.78rem; } }
+  </style>
+
+  <style>
+    /* ── Codec & Quality Section ── */
+    .codec-section { position: relative; overflow: hidden; padding: 5rem 1.5rem; background: #1A1A2E; color: #E8E8F0; }
+    .codec-glow { position: absolute; border-radius: 50%; filter: blur(120px); pointer-events: none; z-index: 0; }
+    .codec-glow--violet { width: 450px; height: 450px; background: rgba(123, 47, 247, 0.12); top: -5%; right: -8%; }
+    .codec-glow--cyan { width: 380px; height: 380px; background: rgba(0, 240, 255, 0.08); bottom: 5%; left: -6%; }
+    .codec-container { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; }
+    .codec-header { text-align: center; margin-bottom: 4rem; }
+    .codec-label { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.9rem; border-radius: 999px; border: 1px solid rgba(123, 47, 247, 0.4); background: rgba(123, 47, 247, 0.1); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; color: #00F0FF; text-transform: uppercase; margin-bottom: 1.25rem; }
+    .codec-title { font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; line-height: 1.1; letter-spacing: -0.02em; background: linear-gradient(135deg, #7B2FF7 0%, #FF2D95 50%, #00F0FF 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 1rem; }
+    .codec-subtitle { font-size: clamp(1rem, 2vw, 1.15rem); color: rgba(232, 232, 240, 0.6); max-width: 560px; margin: 0 auto; line-height: 1.6; }
+    .codec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; align-items: start; }
+    .codec-card { background: #25253E; border: 1px solid rgba(108, 108, 138, 0.2); border-radius: 16px; padding: 2rem; position: relative; overflow: hidden; }
+    .codec-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(123, 47, 247, 0.5), rgba(0, 240, 255, 0.3), transparent); }
+    .codec-card-title { font-size: 1.25rem; font-weight: 700; color: #E8E8F0; margin-bottom: 1.75rem; display: flex; align-items: center; gap: 0.6rem; }
+    .codec-card-icon { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .codec-card-icon svg { width: 16px; height: 16px; }
+    .codec-card-icon--violet { background: rgba(123, 47, 247, 0.2); color: #7B2FF7; }
+    .codec-card-icon--cyan { background: rgba(0, 240, 255, 0.15); color: #00F0FF; }
+    .codec-list { display: flex; flex-direction: column; gap: 1.25rem; }
+    .codec-item { display: flex; flex-direction: column; gap: 0.5rem; }
+    .codec-item-header { display: flex; align-items: baseline; justify-content: space-between; gap: 0.75rem; }
+    .codec-name { font-size: 0.95rem; font-weight: 700; color: #E8E8F0; white-space: nowrap; }
+    .codec-tag { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.04em; padding: 0.15rem 0.5rem; border-radius: 999px; text-transform: uppercase; white-space: nowrap; }
+    .codec-tag--compat { background: rgba(123, 47, 247, 0.15); color: #a878ff; border: 1px solid rgba(123, 47, 247, 0.3); }
+    .codec-tag--compress { background: rgba(255, 45, 149, 0.12); color: #FF2D95; border: 1px solid rgba(255, 45, 149, 0.3); }
+    .codec-tag--nextgen { background: rgba(57, 255, 20, 0.1); color: #39FF14; border: 1px solid rgba(57, 255, 20, 0.25); }
+    .codec-tag--open { background: rgba(0, 240, 255, 0.1); color: #00F0FF; border: 1px solid rgba(0, 240, 255, 0.25); }
+    .codec-bar-wrap { position: relative; height: 28px; background: rgba(26, 26, 46, 0.6); border-radius: 6px; overflow: hidden; border: 1px solid rgba(108, 108, 138, 0.12); }
+    .codec-bar { height: 100%; border-radius: 5px; display: flex; align-items: center; justify-content: flex-end; padding-right: 0.75rem; font-size: 0.75rem; font-weight: 700; color: #E8E8F0; transition: width 1s cubic-bezier(0.22, 1, 0.36, 1); position: relative; overflow: hidden; }
+    .codec-bar::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 60%); pointer-events: none; }
+    .codec-bar--h264 { width: 100%; background: linear-gradient(90deg, #7B2FF7, #9B5FFA); }
+    .codec-bar--h265 { width: 60%; background: linear-gradient(90deg, #FF2D95, #ff5aaf); }
+    .codec-bar--av1 { width: 45%; background: linear-gradient(90deg, #39FF14, #5fff45); }
+    .codec-bar--vp9 { width: 55%; background: linear-gradient(90deg, #00F0FF, #33f5ff); }
+    .codec-chart-note { margin-top: 1rem; font-size: 0.72rem; color: rgba(232, 232, 240, 0.35); text-align: center; font-style: italic; }
+    .codec-controls { display: flex; flex-direction: column; gap: 1.5rem; }
+    .codec-control { display: flex; flex-direction: column; gap: 0.5rem; }
+    .codec-control-header { display: flex; align-items: center; justify-content: space-between; }
+    .codec-control-name { font-size: 0.85rem; font-weight: 600; color: #E8E8F0; }
+    .codec-control-value { font-size: 0.75rem; font-weight: 700; font-family: var(--font-mono); color: #00F0FF; }
+    .codec-slider-track { position: relative; height: 6px; background: rgba(108, 108, 138, 0.25); border-radius: 999px; overflow: visible; }
+    .codec-slider-fill { position: absolute; top: 0; left: 0; height: 100%; border-radius: 999px; }
+    .codec-slider-fill--crf { width: 35%; background: linear-gradient(90deg, #7B2FF7, #FF2D95); }
+    .codec-slider-fill--speed { width: 60%; background: linear-gradient(90deg, #39FF14, #00F0FF); }
+    .codec-slider-fill--res { width: 80%; background: linear-gradient(90deg, #00F0FF, #7B2FF7); }
+    .codec-slider-thumb { position: absolute; top: 50%; transform: translate(-50%, -50%); width: 16px; height: 16px; border-radius: 50%; background: #E8E8F0; border: 2px solid #7B2FF7; box-shadow: 0 0 10px rgba(123, 47, 247, 0.5), 0 2px 6px rgba(0, 0, 0, 0.4); }
+    .codec-slider-thumb--crf { left: 35%; }
+    .codec-slider-thumb--speed { left: 60%; border-color: #39FF14; box-shadow: 0 0 10px rgba(57, 255, 20, 0.4), 0 2px 6px rgba(0, 0, 0, 0.4); }
+    .codec-slider-thumb--res { left: 80%; border-color: #00F0FF; box-shadow: 0 0 10px rgba(0, 240, 255, 0.4), 0 2px 6px rgba(0, 0, 0, 0.4); }
+    .codec-slider-labels { display: flex; justify-content: space-between; margin-top: 0.25rem; }
+    .codec-slider-label { font-size: 0.65rem; color: rgba(232, 232, 240, 0.35); font-weight: 500; }
+    .codec-divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(108, 108, 138, 0.25), transparent); border: none; }
+    .codec-target { background: linear-gradient(135deg, rgba(123, 47, 247, 0.08), rgba(255, 45, 149, 0.06)); border: 1px solid rgba(123, 47, 247, 0.25); border-radius: 12px; padding: 1.5rem; text-align: center; margin-top: 2.5rem; position: relative; overflow: hidden; }
+    .codec-target::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, #7B2FF7, #FF2D95, transparent); }
+    .codec-target-badge { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.25rem 0.7rem; border-radius: 999px; background: rgba(57, 255, 20, 0.1); border: 1px solid rgba(57, 255, 20, 0.25); font-size: 0.65rem; font-weight: 700; color: #39FF14; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.75rem; }
+    .codec-target-badge-dot { width: 5px; height: 5px; border-radius: 50%; background: #39FF14; box-shadow: 0 0 6px #39FF14; animation: codec-pulse 2s ease-in-out infinite; }
+    @keyframes codec-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+    .codec-target-title { font-size: 1.1rem; font-weight: 700; color: #E8E8F0; margin-bottom: 0.5rem; }
+    .codec-target-desc { font-size: 0.85rem; color: rgba(232, 232, 240, 0.55); line-height: 1.5; max-width: 480px; margin: 0 auto 1rem; }
+    .codec-target-example { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.25rem; background: rgba(26, 26, 46, 0.7); border: 1px solid rgba(108, 108, 138, 0.2); border-radius: 8px; font-family: var(--font-mono); font-size: 0.85rem; color: #E8E8F0; }
+    .codec-target-prompt { color: #39FF14; font-weight: 700; }
+    .codec-target-flag { color: #00F0FF; }
+    .codec-target-val { color: #FF2D95; font-weight: 700; }
+    .codec-features { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-top: 2rem; }
+    .codec-feature-pill { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.4rem 0.85rem; border-radius: 999px; background: rgba(37, 37, 62, 0.8); border: 1px solid rgba(108, 108, 138, 0.2); font-size: 0.78rem; font-weight: 500; color: rgba(232, 232, 240, 0.7); transition: border-color 0.25s ease, color 0.25s ease; }
+    .codec-feature-pill:hover { border-color: rgba(123, 47, 247, 0.4); color: #E8E8F0; }
+    .codec-feature-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+    .codec-feature-dot--violet { background: #7B2FF7; }
+    .codec-feature-dot--pink { background: #FF2D95; }
+    .codec-feature-dot--cyan { background: #00F0FF; }
+    .codec-feature-dot--green { background: #39FF14; }
+    @media (max-width: 768px) { .codec-section { padding: 3.5rem 1rem; } .codec-grid { grid-template-columns: 1fr; gap: 1.5rem; } .codec-header { margin-bottom: 2.5rem; } .codec-card { padding: 1.5rem; } .codec-target { padding: 1.25rem; } .codec-target-example { font-size: 0.75rem; padding: 0.5rem 1rem; } .codec-features { gap: 0.4rem; } }
+    @media (max-width: 480px) { .codec-bar { font-size: 0.65rem; padding-right: 0.5rem; } .codec-item-header { flex-direction: column; align-items: flex-start; gap: 0.25rem; } .codec-target-example { font-size: 0.7rem; flex-wrap: wrap; justify-content: center; } }
+  </style>
+
+  <style>
+    /* ── Batch Processing Section ── */
+    .batch-section { position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; padding: 6rem 1.5rem; background: #1A1A2E; color: #E8E8F0; }
+    .batch-glow { position: absolute; border-radius: 50%; filter: blur(120px); pointer-events: none; z-index: 0; }
+    .batch-glow--violet { width: 450px; height: 450px; background: rgba(123, 47, 247, 0.12); top: -5%; right: -8%; }
+    .batch-glow--cyan { width: 380px; height: 380px; background: rgba(0, 240, 255, 0.08); bottom: 5%; left: -6%; }
+    .batch-content { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 3rem; max-width: 960px; width: 100%; }
+    .batch-header { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+    .batch-badge { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.9rem; border-radius: 999px; border: 1px solid rgba(57, 255, 20, 0.4); background: rgba(57, 255, 20, 0.08); font-size: 0.8rem; font-weight: 600; letter-spacing: 0.04em; color: #39FF14; text-transform: uppercase; }
+    .batch-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: #39FF14; box-shadow: 0 0 6px #39FF14; animation: batch-pulse 2s ease-in-out infinite; }
+    @keyframes batch-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    .batch-title { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 900; line-height: 1.1; letter-spacing: -0.03em; background: linear-gradient(135deg, #7B2FF7 0%, #00F0FF 50%, #39FF14 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; filter: drop-shadow(0 0 30px rgba(0, 240, 255, 0.25)); }
+    .batch-subtitle { font-size: clamp(1rem, 2vw, 1.2rem); color: #6C6C8A; max-width: 580px; line-height: 1.6; }
+    .batch-pipeline { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 1.5rem; padding: 2rem; border-radius: 16px; background: rgba(37, 37, 62, 0.6); border: 1px solid rgba(123, 47, 247, 0.2); backdrop-filter: blur(8px); }
+    .batch-folder { display: flex; flex-direction: column; gap: 0.5rem; }
+    .batch-folder-icon { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; font-weight: 600; color: #00F0FF; margin-bottom: 0.25rem; }
+    .batch-folder-icon svg { width: 20px; height: 20px; flex-shrink: 0; }
+    .batch-file-item { display: flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.6rem; border-radius: 6px; background: rgba(0, 240, 255, 0.06); border: 1px solid rgba(0, 240, 255, 0.12); font-size: 0.75rem; font-family: var(--font-mono); color: rgba(232, 232, 240, 0.7); animation: batch-file-enter 0.6s ease-out both; }
+    .batch-file-item:nth-child(2) { animation-delay: 0.1s; }
+    .batch-file-item:nth-child(3) { animation-delay: 0.2s; }
+    .batch-file-item:nth-child(4) { animation-delay: 0.3s; }
+    .batch-file-item:nth-child(5) { animation-delay: 0.4s; }
+    .batch-file-item:nth-child(6) { animation-delay: 0.5s; }
+    .batch-file-item:nth-child(7) { animation-delay: 0.6s; }
+    @keyframes batch-file-enter { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+    .batch-file-item .batch-file-size { margin-left: auto; color: #6C6C8A; font-size: 0.65rem; }
+    .batch-connector { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; padding: 0 0.5rem; }
+    .batch-connector-line { width: 60px; height: 2px; background: linear-gradient(90deg, #7B2FF7, #00F0FF); position: relative; border-radius: 2px; overflow: hidden; }
+    .batch-connector-line::after { content: ''; position: absolute; top: 0; left: -40%; width: 40%; height: 100%; background: linear-gradient(90deg, transparent, #39FF14, transparent); animation: batch-flow 1.5s linear infinite; }
+    @keyframes batch-flow { 0% { left: -40%; } 100% { left: 100%; } }
+    .batch-connector-label { font-size: 0.65rem; font-weight: 700; color: #39FF14; text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap; }
+    .batch-workers { display: flex; flex-direction: column; gap: 0.5rem; }
+    .batch-workers-label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; font-weight: 600; color: #39FF14; margin-bottom: 0.25rem; }
+    .batch-workers-label svg { width: 20px; height: 20px; flex-shrink: 0; }
+    .batch-worker { display: flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0.6rem; border-radius: 6px; background: rgba(57, 255, 20, 0.04); border: 1px solid rgba(57, 255, 20, 0.12); font-size: 0.75rem; font-family: var(--font-mono); }
+    .batch-worker-id { color: #39FF14; font-weight: 600; flex-shrink: 0; }
+    .batch-worker-bar { flex: 1; height: 6px; border-radius: 3px; background: rgba(232, 232, 240, 0.08); overflow: hidden; min-width: 60px; }
+    .batch-worker-fill { height: 100%; border-radius: 3px; animation: batch-progress 3s ease-in-out infinite; }
+    .batch-worker:nth-child(2) .batch-worker-fill { background: linear-gradient(90deg, #39FF14, #00F0FF); animation-duration: 2.5s; width: 100%; }
+    .batch-worker:nth-child(3) .batch-worker-fill { background: linear-gradient(90deg, #00F0FF, #7B2FF7); animation-duration: 3.8s; width: 67%; }
+    .batch-worker:nth-child(4) .batch-worker-fill { background: linear-gradient(90deg, #7B2FF7, #FF2D95); animation-duration: 4.2s; width: 50%; }
+    .batch-worker:nth-child(5) .batch-worker-fill { background: linear-gradient(90deg, #FF2D95, #39FF14); animation-duration: 5s; width: 33%; }
+    @keyframes batch-progress { 0% { opacity: 0.7; } 50% { opacity: 1; } 100% { opacity: 0.7; } }
+    .batch-worker-pct { color: rgba(232, 232, 240, 0.6); font-size: 0.65rem; flex-shrink: 0; min-width: 32px; text-align: right; }
+    .batch-worker-status { flex-shrink: 0; font-size: 0.7rem; }
+    .batch-terminal { width: 100%; border-radius: 12px; overflow: hidden; border: 1px solid rgba(123, 47, 247, 0.25); box-shadow: 0 4px 30px rgba(123, 47, 247, 0.15), 0 0 60px -20px rgba(0, 240, 255, 0.1); }
+    .batch-terminal-bar { display: flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1rem; background: rgba(37, 37, 62, 0.9); border-bottom: 1px solid rgba(123, 47, 247, 0.15); }
+    .batch-terminal-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .batch-terminal-dot:nth-child(1) { background: #FF5F57; }
+    .batch-terminal-dot:nth-child(2) { background: #FFBD2E; }
+    .batch-terminal-dot:nth-child(3) { background: #28CA41; }
+    .batch-terminal-title { flex: 1; text-align: center; font-size: 0.75rem; color: #6C6C8A; font-family: var(--font-mono); }
+    .batch-terminal-body { background: rgba(20, 20, 35, 0.95); padding: 1.25rem 1.5rem; font-family: var(--font-mono); font-size: 0.8rem; line-height: 1.7; overflow-x: auto; }
+    .batch-term-prompt { color: #39FF14; }
+    .batch-term-cmd { color: #E8E8F0; }
+    .batch-term-flag { color: #00F0FF; }
+    .batch-term-value { color: #FF2D95; }
+    .batch-term-info { color: #6C6C8A; }
+    .batch-term-found { color: #7B2FF7; }
+    .batch-term-worker { color: #00F0FF; }
+    .batch-term-bar-full { color: #39FF14; }
+    .batch-term-bar-empty { color: rgba(232, 232, 240, 0.15); }
+    .batch-term-pct { color: rgba(232, 232, 240, 0.6); }
+    .batch-term-check { color: #39FF14; }
+    .batch-term-savings { color: #FF2D95; }
+    .batch-term-complete { color: #39FF14; font-weight: 600; }
+    .batch-term-line { opacity: 0; animation: batch-term-appear 0.3s ease-out forwards; }
+    .batch-term-line:nth-child(1) { animation-delay: 0.2s; }
+    .batch-term-line:nth-child(2) { animation-delay: 0.8s; }
+    .batch-term-line:nth-child(3) { animation-delay: 1.4s; }
+    .batch-term-line:nth-child(4) { animation-delay: 1.8s; }
+    .batch-term-line:nth-child(5) { animation-delay: 2.2s; }
+    .batch-term-line:nth-child(6) { animation-delay: 2.6s; }
+    .batch-term-line:nth-child(7) { animation-delay: 3.0s; }
+    .batch-term-line:nth-child(8) { animation-delay: 3.6s; }
+    @keyframes batch-term-appear { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    .batch-term-cursor { display: inline-block; width: 8px; height: 1.1em; background: #39FF14; vertical-align: text-bottom; margin-left: 2px; animation: batch-blink 1s step-end infinite; }
+    @keyframes batch-blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
+    .batch-features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; width: 100%; }
+    .batch-feature { padding: 1.25rem; border-radius: 12px; background: rgba(37, 37, 62, 0.5); border: 1px solid rgba(123, 47, 247, 0.15); transition: border-color 0.3s ease, box-shadow 0.3s ease; }
+    .batch-feature:hover { border-color: rgba(0, 240, 255, 0.3); box-shadow: 0 0 20px rgba(0, 240, 255, 0.06); }
+    .batch-feature-icon { font-size: 1.5rem; margin-bottom: 0.6rem; display: block; }
+    .batch-feature-title { font-size: 0.9rem; font-weight: 700; color: #E8E8F0; margin-bottom: 0.35rem; }
+    .batch-feature-desc { font-size: 0.78rem; color: #6C6C8A; line-height: 1.5; }
+    .batch-feature-flag { display: inline-block; margin-top: 0.5rem; padding: 0.15rem 0.5rem; border-radius: 4px; background: rgba(0, 240, 255, 0.08); border: 1px solid rgba(0, 240, 255, 0.15); font-size: 0.7rem; font-family: var(--font-mono); color: #00F0FF; }
+    @media (max-width: 768px) { .batch-section { padding: 4rem 1rem; } .batch-pipeline { grid-template-columns: 1fr; gap: 1.5rem; padding: 1.5rem; } .batch-connector { flex-direction: row; padding: 0; } .batch-connector-line { width: 100%; height: 2px; } .batch-features { grid-template-columns: 1fr; } .batch-terminal-body { font-size: 0.68rem; padding: 1rem; } }
+    @media (min-width: 769px) and (max-width: 1024px) { .batch-features { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 480px) { .batch-terminal-body { font-size: 0.6rem; padding: 0.75rem; line-height: 1.6; } .batch-pipeline { padding: 1rem; } }
+  </style>
+
+  <style>
+    /* ── Use Cases Section ── */
+    .usecases-section { position: relative; padding: 5rem 1.5rem; background: #1A1A2E; color: #E8E8F0; }
+    .usecases-inner { max-width: 1200px; margin: 0 auto; }
+    .usecases-header { text-align: center; margin-bottom: 3.5rem; }
+    .usecases-label { display: inline-block; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #00F0FF; margin-bottom: 0.75rem; }
+    .usecases-title { font-size: clamp(1.875rem, 5vw, 2.5rem); font-weight: 800; line-height: 1.15; background: linear-gradient(135deg, #7B2FF7 0%, #FF2D95 40%, #00F0FF 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 1rem; }
+    .usecases-subtitle { font-size: 1.1rem; color: #9999B3; max-width: 560px; margin: 0 auto; line-height: 1.6; }
+    .usecases-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+    .usecases-card { position: relative; background: #25253E; border-radius: 12px; padding: 2rem 1.75rem; border: 1px solid rgba(108, 108, 138, 0.2); transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease; overflow: hidden; }
+    .usecases-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; border-radius: 12px 0 0 12px; transition: width 0.25s ease; }
+    .usecases-card:hover { transform: translateY(-4px); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4); border-color: rgba(108, 108, 138, 0.35); }
+    .usecases-card:hover::before { width: 5px; }
+    .usecases-card--violet::before { background: linear-gradient(180deg, #7B2FF7, #9B5FFF); }
+    .usecases-card--pink::before { background: linear-gradient(180deg, #FF2D95, #FF6FB5); }
+    .usecases-card--cyan::before { background: linear-gradient(180deg, #00F0FF, #00B8D4); }
+    .usecases-card--gradient-vp::before { background: linear-gradient(180deg, #7B2FF7, #FF2D95); }
+    .usecases-card--gradient-cp::before { background: linear-gradient(180deg, #00F0FF, #FF2D95); }
+    .usecases-card--gradient-vc::before { background: linear-gradient(180deg, #7B2FF7, #00F0FF); }
+    .usecases-icon { font-size: 2rem; line-height: 1; margin-bottom: 1rem; display: block; }
+    .usecases-persona { font-size: 1.15rem; font-weight: 700; color: #E8E8F0; margin-bottom: 0.625rem; line-height: 1.3; }
+    .usecases-desc { font-size: 0.925rem; color: #9999B3; line-height: 1.6; }
+    @media (max-width: 1024px) { .usecases-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 640px) { .usecases-section { padding: 3.5rem 1rem; } .usecases-header { margin-bottom: 2.5rem; } .usecases-grid { grid-template-columns: 1fr; gap: 1.25rem; } .usecases-card { padding: 1.5rem; } }
+  </style>
+
+  <style>
+    /* ── Cross-Platform Section ── */
+    .xplat-section { position: relative; overflow: hidden; padding: 5rem 1.5rem; background: #1A1A2E; color: #E8E8F0; }
+    .xplat-section::before { content: ''; position: absolute; top: 0; left: 10%; right: 10%; height: 1px; background: linear-gradient(90deg, transparent, rgba(123,47,247,0.5) 30%, rgba(0,240,255,0.4) 70%, transparent); }
+    .xplat-inner { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 3.5rem; }
+    .xplat-header { text-align: center; max-width: 640px; }
+    .xplat-eyebrow { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.9rem; border-radius: 999px; border: 1px solid rgba(0,240,255,0.35); background: rgba(0,240,255,0.08); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.06em; color: #00F0FF; text-transform: uppercase; margin-bottom: 1.25rem; }
+    .xplat-eyebrow-icon { font-size: 0.85rem; }
+    .xplat-title { font-size: clamp(2rem, 5vw, 2.75rem); font-weight: 800; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 1rem; background: linear-gradient(135deg, #E8E8F0 0%, #E8E8F0 50%, #00F0FF 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .xplat-subtitle { font-size: 1.05rem; color: rgba(232,232,240,0.6); line-height: 1.6; }
+    .xplat-subtitle strong { color: #E8E8F0; font-weight: 600; }
+    .xplat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; width: 100%; max-width: 960px; }
+    .xplat-card { position: relative; background: #25253E; border-radius: 16px; padding: 2rem 1.5rem 1.75rem; display: flex; flex-direction: column; align-items: center; gap: 1.25rem; text-align: center; border: 1px solid rgba(108,108,138,0.2); transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease; }
+    .xplat-card:hover { transform: translateY(-4px); border-color: rgba(123,47,247,0.4); box-shadow: 0 8px 32px rgba(123,47,247,0.15); }
+    .xplat-os-icon { width: 64px; height: 64px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.75rem; flex-shrink: 0; }
+    .xplat-os-icon--windows { background: linear-gradient(135deg, rgba(0,120,215,0.2), rgba(0,120,215,0.08)); border: 1px solid rgba(0,120,215,0.3); }
+    .xplat-os-icon--macos { background: linear-gradient(135deg, rgba(232,232,240,0.12), rgba(232,232,240,0.04)); border: 1px solid rgba(232,232,240,0.2); }
+    .xplat-os-icon--linux { background: linear-gradient(135deg, rgba(255,204,0,0.15), rgba(255,204,0,0.05)); border: 1px solid rgba(255,204,0,0.25); }
+    .xplat-win-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; width: 26px; height: 26px; }
+    .xplat-win-grid span { background: #0078D7; border-radius: 1.5px; }
+    .xplat-os-name { font-size: 1.2rem; font-weight: 700; color: #E8E8F0; line-height: 1.2; }
+    .xplat-arches { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; }
+    .xplat-arch-badge { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.25rem 0.65rem; border-radius: 999px; font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600; letter-spacing: 0.03em; border: 1px solid rgba(123,47,247,0.35); background: rgba(123,47,247,0.1); color: rgba(232,232,240,0.85); }
+    .xplat-arch-dot { width: 5px; height: 5px; border-radius: 50%; background: #7B2FF7; box-shadow: 0 0 6px rgba(123,47,247,0.6); }
+    .xplat-arch-badge--arm .xplat-arch-dot { background: #FF2D95; box-shadow: 0 0 6px rgba(255,45,149,0.6); }
+    .xplat-arch-badge--arm { border-color: rgba(255,45,149,0.35); background: rgba(255,45,149,0.1); }
+    .xplat-install { width: 100%; margin-top: auto; }
+    .xplat-install-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(232,232,240,0.35); margin-bottom: 0.4rem; font-weight: 600; }
+    .xplat-install-code { display: block; width: 100%; background: rgba(26,26,46,0.7); border: 1px solid rgba(108,108,138,0.15); border-radius: 8px; padding: 0.55rem 0.75rem; font-family: var(--font-mono); font-size: 0.68rem; color: #00F0FF; line-height: 1.5; white-space: normal; word-break: break-all; }
+    .xplat-install-wrap { display: flex; gap: 0.4rem; align-items: flex-start; }
+    .xplat-install-wrap .xplat-install-code { flex: 1; min-width: 0; }
+    .xplat-copy-btn { flex-shrink: 0; background: rgba(123,47,247,0.15); border: 1px solid rgba(123,47,247,0.3); border-radius: 6px; padding: 0.4rem; cursor: pointer; color: rgba(232,232,240,0.6); transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; align-self: flex-start; }
+    .xplat-copy-btn:hover { background: rgba(123,47,247,0.3); color: #E8E8F0; }
+    .xplat-copy-btn svg { width: 14px; height: 14px; }
+    .xplat-features { display: flex; flex-wrap: wrap; justify-content: center; gap: 1.5rem 2.5rem; max-width: 800px; }
+    .xplat-feature { display: flex; align-items: center; gap: 0.6rem; font-size: 0.9rem; color: rgba(232,232,240,0.7); }
+    .xplat-feature-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; background: rgba(123,47,247,0.1); border: 1px solid rgba(123,47,247,0.2); flex-shrink: 0; }
+    .xplat-feature strong { color: #E8E8F0; font-weight: 600; }
+    .xplat-download-wrap { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; }
+    .xplat-download-btn { display: inline-flex; align-items: center; gap: 0.6rem; padding: 0.9rem 2.25rem; border-radius: 12px; background: linear-gradient(135deg, #7B2FF7, #FF2D95); color: #E8E8F0; font-size: 1rem; font-weight: 600; text-decoration: none; box-shadow: 0 4px 24px rgba(123,47,247,0.3); transition: transform 0.2s ease, box-shadow 0.2s ease; cursor: pointer; border: none; }
+    .xplat-download-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 32px rgba(123,47,247,0.45); }
+    .xplat-download-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+    .xplat-download-hint { font-size: 0.78rem; color: rgba(232,232,240,0.35); }
+    .xplat-shells { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; justify-content: center; }
+    .xplat-shells-label { font-size: 0.78rem; color: rgba(232,232,240,0.4); font-weight: 500; }
+    .xplat-shell-tag { display: inline-flex; align-items: center; padding: 0.2rem 0.55rem; border-radius: 6px; font-family: var(--font-mono); font-size: 0.68rem; font-weight: 500; background: rgba(0,240,255,0.06); border: 1px solid rgba(0,240,255,0.15); color: rgba(0,240,255,0.7); }
+    .xplat-glow { position: absolute; border-radius: 50%; filter: blur(120px); pointer-events: none; z-index: 0; }
+    .xplat-glow--1 { width: 400px; height: 400px; background: rgba(123,47,247,0.08); top: -10%; right: -5%; }
+    .xplat-glow--2 { width: 350px; height: 350px; background: rgba(0,240,255,0.06); bottom: -8%; left: -5%; }
+    .xplat-section > *:not(.xplat-glow) { position: relative; z-index: 1; }
+    @media (max-width: 840px) { .xplat-grid { grid-template-columns: 1fr; max-width: 420px; margin: 0 auto; } .xplat-card { flex-direction: row; text-align: left; padding: 1.5rem; gap: 1.25rem; } .xplat-card-body { display: flex; flex-direction: column; gap: 0.75rem; flex: 1; min-width: 0; } .xplat-arches { justify-content: flex-start; } .xplat-install { margin-top: 0; } }
+    @media (max-width: 480px) { .xplat-section { padding: 3.5rem 1rem; } .xplat-features { flex-direction: column; gap: 1rem; align-items: flex-start; padding-left: 1rem; } .xplat-download-btn { width: 100%; justify-content: center; } }
+  </style>
+
+  <style>
+    /* ── Config Section ── */
+    .config-section { position: relative; display: flex; flex-direction: column; align-items: center; padding: 6rem 1.5rem; background: #1A1A2E; color: #E8E8F0; }
+    .config-section::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(123, 47, 247, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(123, 47, 247, 0.03) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; }
+    .config-header { text-align: center; margin-bottom: 3.5rem; position: relative; z-index: 1; }
+    .config-badge { display: inline-block; padding: 0.35rem 1rem; border-radius: 999px; border: 1px solid rgba(123, 47, 247, 0.4); background: rgba(123, 47, 247, 0.1); color: #7B2FF7; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 1rem; }
+    .config-title { font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; line-height: 1.1; margin-bottom: 1rem; background: linear-gradient(135deg, #E8E8F0 0%, #7B2FF7 50%, #FF2D95 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .config-subtitle { font-size: 1.1rem; color: #6C6C8A; max-width: 540px; margin: 0 auto; line-height: 1.6; }
+    .config-layout { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; max-width: 1100px; width: 100%; align-items: start; }
+    .config-code-panel { position: relative; border-radius: 16px; background: #25253E; border: 1px solid rgba(123, 47, 247, 0.2); overflow: hidden; box-shadow: 0 0 40px rgba(123, 47, 247, 0.08), 0 20px 60px rgba(0, 0, 0, 0.3); }
+    .config-code-chrome { display: flex; align-items: center; gap: 0.5rem; padding: 0.85rem 1.2rem; background: rgba(26, 26, 46, 0.8); border-bottom: 1px solid rgba(123, 47, 247, 0.15); }
+    .config-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .config-dot--red { background: #FF5F57; }
+    .config-dot--yellow { background: #FFBD2E; }
+    .config-dot--green { background: #28CA42; }
+    .config-code-filename { margin-left: 0.75rem; font-size: 0.8rem; color: #6C6C8A; font-family: var(--font-mono); }
+    .config-code { padding: 1.5rem 1.5rem 1.5rem 1rem; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.7; overflow-x: auto; counter-reset: line; }
+    .config-code-line { display: flex; padding: 0 0.5rem; border-radius: 4px; transition: background 0.2s; }
+    .config-code-line:hover { background: rgba(123, 47, 247, 0.06); }
+    .config-code-line--highlighted { background: rgba(123, 47, 247, 0.1); border-left: 2px solid #7B2FF7; padding-left: calc(0.5rem - 2px); }
+    .config-line-num { display: inline-block; width: 2rem; text-align: right; color: rgba(108, 108, 138, 0.5); margin-right: 1rem; user-select: none; flex-shrink: 0; font-size: 0.75rem; line-height: 1.7; }
+    .config-key { color: #00F0FF; }
+    .config-str { color: #FF2D95; }
+    .config-num { color: #7B2FF7; font-weight: 600; }
+    .config-bool { color: #FF2D95; font-style: italic; }
+    .config-comment { color: #6C6C8A; font-style: italic; }
+    .config-section-key { color: #00F0FF; font-weight: 700; }
+    .config-code-line--highlighted .config-annotation { display: inline-block; }
+    .config-annotation { display: none; margin-left: auto; padding: 0.15rem 0.6rem; background: rgba(123, 47, 247, 0.2); border: 1px solid rgba(123, 47, 247, 0.35); border-radius: 999px; color: #7B2FF7; font-size: 0.65rem; font-weight: 600; white-space: nowrap; letter-spacing: 0.02em; flex-shrink: 0; align-self: center; }
+    .config-details { display: flex; flex-direction: column; gap: 1.75rem; }
+    .config-detail-card { padding: 1.5rem; border-radius: 12px; background: #25253E; border: 1px solid rgba(123, 47, 247, 0.12); transition: border-color 0.3s, box-shadow 0.3s; }
+    .config-detail-card:hover { border-color: rgba(123, 47, 247, 0.35); box-shadow: 0 0 20px rgba(123, 47, 247, 0.06); }
+    .config-detail-icon { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 10px; margin-bottom: 0.75rem; font-size: 1rem; font-weight: 800; }
+    .config-detail-icon--preset { background: rgba(123, 47, 247, 0.15); color: #7B2FF7; }
+    .config-detail-icon--output { background: rgba(255, 45, 149, 0.15); color: #FF2D95; }
+    .config-detail-icon--batch { background: rgba(0, 240, 255, 0.15); color: #00F0FF; }
+    .config-detail-icon--theme { background: linear-gradient(135deg, rgba(123, 47, 247, 0.2), rgba(255, 45, 149, 0.2)); color: #E8E8F0; }
+    .config-detail-title { font-size: 1rem; font-weight: 700; color: #E8E8F0; margin-bottom: 0.4rem; }
+    .config-detail-desc { font-size: 0.875rem; color: #6C6C8A; line-height: 1.6; }
+    .config-detail-desc code { display: inline-block; padding: 0.1rem 0.45rem; border-radius: 5px; background: rgba(123, 47, 247, 0.12); color: #00F0FF; font-family: var(--font-mono); font-size: 0.8rem; }
+    .config-paths { position: relative; z-index: 1; margin-top: 3rem; display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center; max-width: 1100px; width: 100%; }
+    .config-path-card { flex: 1; min-width: 280px; padding: 1.25rem 1.5rem; border-radius: 12px; background: #25253E; border: 1px solid rgba(108, 108, 138, 0.15); }
+    .config-path-label { display: block; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: #6C6C8A; margin-bottom: 0.5rem; }
+    .config-path-value { font-family: var(--font-mono); font-size: 0.85rem; color: #00F0FF; word-break: break-all; }
+    @media (max-width: 768px) { .config-section { padding: 4rem 1rem; } .config-layout { grid-template-columns: 1fr; gap: 2rem; } .config-code { font-size: 0.78rem; } .config-annotation { display: none !important; } .config-paths { flex-direction: column; } .config-path-card { min-width: unset; } }
+  </style>
+
+  <style>
+    /* ── OSS CTA Section ── */
+    .oss-section { --oss-violet: #7B2FF7; --oss-pink: #FF2D95; --oss-cyan: #00F0FF; --oss-green: #39FF14; --oss-navy: #1A1A2E; --oss-surface: #25253E; --oss-white: #E8E8F0; background: var(--oss-navy); color: var(--oss-white); padding: 80px 24px; font-family: var(--font-sans); text-align: center; overflow: hidden; position: relative; }
+    .oss-container { max-width: 960px; margin: 0 auto; position: relative; z-index: 1; }
+    .oss-title { font-size: 2.5rem; font-weight: 800; margin: 0 0 12px; background: linear-gradient(135deg, var(--oss-violet), var(--oss-pink), var(--oss-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1.2; }
+    .oss-subtitle { font-size: 1.15rem; color: #9898B0; margin: 0 0 40px; font-weight: 400; }
+    .oss-graph { display: flex; justify-content: center; gap: 3px; margin: 0 auto 48px; flex-wrap: wrap; max-width: 640px; }
+    .oss-graph-col { display: flex; flex-direction: column; gap: 3px; }
+    .oss-graph-cell { width: 12px; height: 12px; border-radius: 2px; background: var(--oss-surface); transition: background 0.3s ease; }
+    .oss-graph-cell[data-level="1"] { background: rgba(123, 47, 247, 0.25); }
+    .oss-graph-cell[data-level="2"] { background: rgba(123, 47, 247, 0.50); }
+    .oss-graph-cell[data-level="3"] { background: rgba(123, 47, 247, 0.75); }
+    .oss-graph-cell[data-level="4"] { background: var(--oss-violet); }
+    .oss-badges { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-bottom: 48px; }
+    .oss-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--oss-surface); border: 1px solid rgba(123, 47, 247, 0.3); border-radius: 20px; padding: 6px 16px; font-size: 0.85rem; color: var(--oss-white); text-decoration: none; transition: border-color 0.25s ease, transform 0.2s ease; }
+    .oss-badge:hover { border-color: var(--oss-violet); transform: translateY(-2px); }
+    .oss-badge-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .oss-badge-dot--stars { background: var(--oss-green); }
+    .oss-badge-dot--forks { background: var(--oss-cyan); }
+    .oss-badge-dot--issues { background: var(--oss-pink); }
+    .oss-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 48px; }
+    .oss-card { background: var(--oss-surface); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 16px; padding: 32px 24px; text-decoration: none; color: var(--oss-white); transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    .oss-card:hover { transform: translateY(-6px); box-shadow: 0 12px 40px rgba(123, 47, 247, 0.2); }
+    .oss-card:nth-child(1):hover { border-color: var(--oss-green); }
+    .oss-card:nth-child(2):hover { border-color: var(--oss-pink); }
+    .oss-card:nth-child(3):hover { border-color: var(--oss-cyan); }
+    .oss-card-icon { font-size: 2rem; line-height: 1; }
+    .oss-card-heading { font-size: 1.1rem; font-weight: 700; margin: 0; }
+    .oss-card-desc { font-size: 0.9rem; color: #9898B0; margin: 0; line-height: 1.4; }
+    .oss-cta-wrap { margin-bottom: 32px; }
+    .oss-cta-btn { display: inline-flex; align-items: center; gap: 10px; padding: 16px 40px; font-size: 1.1rem; font-weight: 700; color: #fff; background: linear-gradient(135deg, var(--oss-violet), var(--oss-pink)); border: none; border-radius: 50px; text-decoration: none; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.3s ease; box-shadow: 0 4px 24px rgba(123, 47, 247, 0.35); }
+    .oss-cta-btn:hover { transform: scale(1.05); box-shadow: 0 8px 40px rgba(123, 47, 247, 0.5); }
+    .oss-cta-btn:active { transform: scale(0.98); }
+    .oss-cta-btn svg { width: 22px; height: 22px; fill: currentColor; }
+    .oss-built-with { display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; color: #6e6e8a; padding: 6px 14px; border-radius: 20px; background: rgba(37, 37, 62, 0.7); border: 1px solid rgba(255, 255, 255, 0.04); }
+    .oss-built-with span { color: var(--oss-cyan); font-weight: 600; }
+    @media (max-width: 700px) { .oss-section { padding: 56px 16px; } .oss-title { font-size: 1.75rem; } .oss-subtitle { font-size: 1rem; } .oss-actions { grid-template-columns: 1fr; gap: 14px; } .oss-card { padding: 24px 20px; } .oss-graph-cell { width: 9px; height: 9px; } .oss-cta-btn { padding: 14px 32px; font-size: 1rem; } }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════
+       Navigation
+       ═══════════════════════════════════════════════════════ -->
+  <nav class="site-nav" id="navbar">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo">
+        <span class="nav-logo-icon">&#9889;</span>
+        <span class="nav-logo-text">ShrinkRay</span>
+        <span class="nav-version">v0.2.0</span>
+      </a>
+      <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-hidden="true">
+      <label for="nav-toggle" class="nav-hamburger" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </label>
+      <ul class="nav-links">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#presets">Presets</a></li>
+        <li><a href="#install">Install</a></li>
+        <li><a href="#demo">Demo</a></li>
+        <li>
+          <a href="https://github.com/jparkerweb/shrinkray" target="_blank" rel="noopener" class="nav-github">
+            <svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+            Star
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+  <div style="height: 64px;"></div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       Hero Section
+       ═══════════════════════════════════════════════════════ -->
+  <section class="hero-section">
+    <div class="hero-glow hero-glow--violet"></div>
+    <div class="hero-glow hero-glow--pink"></div>
+    <div class="hero-glow hero-glow--cyan"></div>
+    <div class="hero-stars"></div>
+    <div class="hero-stars-sm"></div>
+    <div class="hero-stars-lg"></div>
+    <div class="hero-beam"></div>
+    <div class="hero-content">
+      <span class="hero-badge">
+        <span class="hero-badge-dot"></span>
+        v0.2.0
+      </span>
+      <h1 class="hero-title">ShrinkRay</h1>
+      <p class="hero-tagline">
+        <em>Less bytes, same vibes.</em><br>
+        CLI video compression powered by FFmpeg &mdash; smart presets, hardware acceleration, and batch processing in a single binary.
+      </p>
+      <div class="hero-image-wrap">
+        <img class="hero-image" src="../.docs/shrinkray.jpg" alt="ShrinkRay — a futuristic ray gun compressing video files" loading="eager">
+      </div>
+      <div class="hero-actions">
+        <a href="#install" class="hero-btn hero-btn--primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Download
+        </a>
+        <a href="https://github.com/jparkerweb/shrinkray" target="_blank" rel="noopener" class="hero-btn hero-btn--outline">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.605-.015 2.896-.015 3.286 0 .315.21.694.825.576C20.565 21.795 24 17.295 24 12 24 5.37 18.63 0 12 0z"/>
+          </svg>
+          View on GitHub
+        </a>
+      </div>
+      <p class="hero-note">Windows &middot; macOS &middot; Linux &mdash; single binary, no install</p>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- ═══════════════════════════════════════════════════════
+       Stats Section
+       ═══════════════════════════════════════════════════════ -->
+  <section class="stats-section" id="stats">
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-number" data-count="18">0</div>
+        <div class="stat-label">Built-in Presets</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" data-count="3">0</div>
+        <div class="stat-label">Platforms</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" data-count="4">0</div>
+        <div class="stat-label">HW Accelerators</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" data-count="89">0</div>
+        <div class="stat-label">Avg Size Reduction</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" data-count="0">0</div>
+        <div class="stat-label">Dependencies</div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- ═══════════════════════════════════════════════════════
+       Features Grid
+       ═══════════════════════════════════════════════════════ -->
+  <section class="features-section" id="features">
+    <div class="features-header">
+      <span class="features-label">Features</span>
+      <h2 class="features-title animate-on-scroll">Everything You Need</h2>
+      <p class="features-subtitle">A complete video compression toolkit in a single binary.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <span class="feature-icon">&#x1F9D9;</span>
+        <div class="feature-name">Interactive TUI Wizard</div>
+        <div class="feature-desc">Step-by-step guided compression with a beautiful terminal UI. Pick files, choose presets, preview settings, and encode -- all without leaving your terminal.</div>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">&#x1F3AF;</span>
+        <div class="feature-name">18 Built-in Presets</div>
+        <div class="feature-desc">Quality-tier, purpose-driven, and platform-specific presets so you never have to think about FFmpeg flags again.</div>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">&#x1F9E0;</span>
+        <div class="feature-name">Smart Recommendations</div>
+        <div class="feature-desc">Analyzes your source video and suggests the optimal preset based on resolution, duration, codec, and file size.</div>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">&#x26A1;</span>
+        <div class="feature-name">Hardware Acceleration</div>
+        <div class="feature-desc">Auto-detects NVIDIA NVENC, AMD AMF, Intel QSV, and Apple VideoToolbox for 5-8x faster encoding.</div>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">&#x1F4E6;</span>
+        <div class="feature-name">Batch Processing</div>
+        <div class="feature-desc">Point at a folder and walk away. Parallel workers chew through hundreds of files with recursive scanning and per-file progress.</div>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">&#x1F5A5;</span>
+        <div class="feature-name">Headless Mode</div>
+        <div class="feature-desc">Full CLI flag parity for scripting, CI/CD pipelines, and automation. Every TUI option has a corresponding flag.</div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- ═══════════════════════════════════════════════════════
+       Terminal Demo
+       ═══════════════════════════════════════════════════════ -->
+  <section class="demo-section" id="demo">
+    <div class="demo-header">
+      <span class="demo-label">Live Demo</span>
+      <h2 class="demo-title animate-on-scroll">See It In Action</h2>
+    </div>
+    <div class="demo-terminal">
+      <div class="demo-terminal-bar">
+        <span class="demo-dot"></span>
+        <span class="demo-dot"></span>
+        <span class="demo-dot"></span>
+        <span class="demo-terminal-title">shrinkray &mdash; terminal</span>
+      </div>
+      <div class="demo-terminal-body">
+        <div class="demo-line"><span class="demo-comment"># Compress a single video with the balanced preset</span></div>
+        <div class="demo-line"><span class="demo-prompt">$ </span><span class="demo-cmd">shrinkray</span> <span class="demo-flag">-i</span> <span class="demo-value">vacation.mp4</span> <span class="demo-flag">-p</span> <span class="demo-value">balanced</span></div>
+        <div class="demo-line">&nbsp;</div>
+        <div class="demo-line"><span class="demo-comment"># Batch compress a folder with 4 parallel workers</span></div>
+        <div class="demo-line"><span class="demo-prompt">$ </span><span class="demo-cmd">shrinkray</span> <span class="demo-flag">-i</span> <span class="demo-value">./footage/</span> <span class="demo-flag">-p</span> <span class="demo-value">compact</span> <span class="demo-flag">-j</span> <span class="demo-value">4</span> <span class="demo-flag">--recursive</span> <span class="demo-flag">--no-tui</span></div>
+        <div class="demo-line">&nbsp;</div>
+        <div class="demo-line"><span class="demo-comment"># Hit a specific file size target</span></div>
+        <div class="demo-line"><span class="demo-prompt">$ </span><span class="demo-cmd">shrinkray</span> <span class="demo-flag">--target-size</span> <span class="demo-value">25mb</span> <span class="demo-value">presentation.mp4</span></div>
+        <div class="demo-line">&nbsp;</div>
+        <div class="demo-line"><span class="demo-comment"># Use hardware acceleration with H.265</span></div>
+        <div class="demo-line"><span class="demo-prompt">$ </span><span class="demo-cmd">shrinkray</span> <span class="demo-flag">-i</span> <span class="demo-value">4k-clip.mp4</span> <span class="demo-flag">--hw</span> <span class="demo-value">nvenc</span> <span class="demo-flag">--codec</span> <span class="demo-value">h265</span></div>
+        <div class="demo-line">&nbsp;</div>
+        <div class="demo-line"><span class="demo-success">&#10003; Done!</span> <span class="demo-output">vacation_shrunk.mp4 &mdash; 380 MB &#8594; 42 MB (89% smaller)</span><span class="demo-cursor"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- ═══════════════════════════════════════════════════════
+       Presets Showcase
+       ═══════════════════════════════════════════════════════ -->
+  <section class="presets-section" id="presets">
+    <div class="presets-header">
+      <span class="presets-label">Presets</span>
+      <h2 class="presets-title animate-on-scroll">18 Smart Presets</h2>
+      <p class="presets-subtitle">Three categories of presets for every use case. No FFmpeg knowledge required.</p>
+    </div>
+    <div class="presets-tabs">
+      <input type="radio" name="presets-tab" id="presets-tab-quality" class="presets-tab-input" checked>
+      <input type="radio" name="presets-tab" id="presets-tab-purpose" class="presets-tab-input">
+      <input type="radio" name="presets-tab" id="presets-tab-platform" class="presets-tab-input">
+      <div class="presets-tab-labels">
+        <label for="presets-tab-quality" class="presets-tab-label">Quality Tier</label>
+        <label for="presets-tab-purpose" class="presets-tab-label">Purpose-Driven</label>
+        <label for="presets-tab-platform" class="presets-tab-label">Platform-Specific</label>
+      </div>
+      <div class="presets-tab-panels">
+        <!-- Quality Tier -->
+        <div class="presets-tab-panel presets-panel-quality">
+          <div class="preset-card">
+            <div class="preset-name">lossless</div>
+            <div class="preset-desc">Mathematically identical output. CRF 0, no quality loss.</div>
+            <div class="preset-meta">CRF 0 &middot; H.264</div>
+          </div>
+          <div class="preset-card">
+            <div class="preset-name">ultra</div>
+            <div class="preset-desc">Near-lossless for archival. Visually indistinguishable from source.</div>
+            <div class="preset-meta">CRF 16 &middot; H.265</div>
+          </div>
+          <div class="preset-card">
+            <div class="preset-name">high</div>
+            <div class="preset-desc">High quality with meaningful compression. Great for editors.</div>
+            <div class="preset-meta">CRF 20 &middot; H.265</div>
+          </div>
+          <div class="preset-card">
+            <div class="preset-name">balanced <span class="preset-badge-recommended">Recommended</span></div>
+            <div class="preset-desc">Best quality-to-size ratio. The default choice for most videos.</div>
+            <div class="preset-meta">CRF 26 &middot; H.265</div>
+          </div>
+          <div class="preset-card">
+            <div class="preset-name">compact</div>
+            <div class="preset-desc">Aggressive compression for storage savings. Minor quality trade-off.</div>
+            <div class="preset-meta">CRF 30 &middot; H.265</div>
+          </div>
+          <div class="preset-card">
+            <div class="preset-name">tiny</div>
+            <div class="preset-desc">Maximum compression. Smallest possible files.</div>
+            <div class="preset-meta">CRF 35 &middot; H.265</div>
+          </div>
+        </div>
+        <!-- Purpose-Driven -->
+        <div class="presets-tab-panel presets-panel-purpose">
+          <div class="preset-card">
+            <div class="preset-name">web-optimized</div>
+            <div class="preset-desc">Fast-start MP4 with web-friendly settings for streaming.</div>
+            <div class="preset-meta">CRF 24 &middot; H.264 &middot; faststart</div>
+          </div>
+          <div class="preset-card">
+            <div class="preset-name">archive</div>
+            <div class="preset-desc">Long-term storage with maximum quality retention.</div>
+            <div class="preset-meta">CRF 18 &middot; H.265 &middot; veryslow</div>
+          </div>
+          <div class="preset-card">
+            <div class="preset-name">quick-share</div>
+            <div class="preset-desc">Fast encode for quick sharing via messaging apps.</div>
+            <div class="preset-meta">CRF 28 &middot; H.264 &middot; veryfast</div>
+          </div>
+          <div class="preset-card">
+            <div class="preset-name">presentation</div>
+            <div class="preset-desc">Optimized for slides and screen recordings.</div>
+            <div class="preset-meta">CRF 22 &middot; H.264</div>
+          </div>
+          <div class="preset-card">
+            <div class="preset-name">email-friendly</div>
+            <div class="preset-desc">Under 25 MB target for email attachments.</div>
+            <div class="preset-meta">Target size &middot; H.264</div>
+          </div>
+        </div>
+        <!-- Platform-Specific -->
+        <div class="presets-tab-panel presets-panel-platform">
+          <div class="preset-card">
+            <div class="preset-name"><span class="preset-brand-color" style="background:#FF0000;"></span>youtube</div>
+            <div class="preset-desc">YouTube recommended encoding settings.</div>
+            <div class="preset-meta">CRF 20 &middot; H.264 &middot; 4K ready</div>
+          </div>
+          <div class="preset-card">
+            <div class="preset-name"><span class="preset-brand-color" style="background:#E1306C;"></span>instagram</div>
+            <div class="preset-desc">Instagram feed and stories format.</div>
+            <div class="preset-meta">CRF 24 &middot; H.264 &middot; 1080p</div>
+          </div>
+          <div class="preset-card">
+            <div class="preset-name"><span class="preset-brand-color" style="background:#69C9D0;"></span>tiktok</div>
+            <div class="preset-desc">TikTok vertical video optimization.</div>
+            <div class="preset-meta">CRF 24 &middot; H.264 &middot; 9:16</div>
+          </div>
+          <div class="preset-card">
+            <div class="preset-name"><span class="preset-brand-color" style="background:#1DA1F2;"></span>twitter</div>
+            <div class="preset-desc">Twitter/X video upload optimization.</div>
+            <div class="preset-meta">CRF 26 &middot; H.264 &middot; 2:20 max</div>
+          </div>
+          <div class="preset-card">
+            <div class="preset-name"><span class="preset-brand-color" style="background:#5865F2;"></span>discord</div>
+            <div class="preset-desc">Discord 25 MB / 50 MB upload limits.</div>
+            <div class="preset-meta">Target size &middot; H.264</div>
+          </div>
+          <div class="preset-card">
+            <div class="preset-name"><span class="preset-brand-color" style="background:#25D366;"></span>whatsapp</div>
+            <div class="preset-desc">WhatsApp video compression settings.</div>
+            <div class="preset-meta">CRF 28 &middot; H.264 &middot; 16 MB</div>
+          </div>
+          <div class="preset-card">
+            <div class="preset-name"><span class="preset-brand-color" style="background:#0A66C2;"></span>linkedin</div>
+            <div class="preset-desc">LinkedIn video post optimization.</div>
+            <div class="preset-meta">CRF 24 &middot; H.264 &middot; 10 min</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- ═══════════════════════════════════════════════════════
+       Hardware Acceleration
+       ═══════════════════════════════════════════════════════ -->
+  <section class="hw-section">
+    <div class="hw-glow hw-glow--left"></div>
+    <div class="hw-glow hw-glow--right"></div>
+    <div class="hw-content">
+      <span class="hw-label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+        </svg>
+        Hardware Acceleration
+      </span>
+      <h2 class="hw-title animate-on-scroll">Lightning-Fast Hardware Encoding</h2>
+      <p class="hw-subtitle">ShrinkRay auto-detects your GPU and picks the fastest available encoder &mdash; no configuration needed.</p>
+      <div class="hw-grid">
+        <div class="hw-card hw-card--nvidia">
+          <div class="hw-icon hw-icon--nvidia">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8.948 8.798v-1.43a6.7 6.7 0 0 1 .424-.018c3.922-.124 6.985 3.044 6.985 3.044s-3.242 3.632-6.592 3.632a5.4 5.4 0 0 1-.817-.062v-4.27c1.6.198 1.92.91 2.872 2.168l2.128-1.794s-1.84-2.108-4.572-2.108a6 6 0 0 0-.428.018zM8.948 4.252V6.37l.424-.024c5.404-.17 9.592 4.232 9.592 4.232s-4.762 5.27-9.542 5.27a7.5 7.5 0 0 1-.474-.016v1.46c.156.008.312.014.474.014 4.386 0 7.544-2.226 10.606-4.838-.508-.41-2.688-2.108-3.096-2.342 1.612-1.37 3.506-2.068 3.506-2.068S16.712 3.846 9.372 4.234a8 8 0 0 0-.424.018zM8.948 16.832a4 4 0 0 1-.474-.042V18.4c.156.012.316.02.474.024 4.386 0 7.544-2.226 10.606-4.838l-.782-.608c-2.334 2.004-5.17 3.854-9.824 3.854z"/><path d="M3.476 10.578s2.636-3.756 5.472-3.986v-1.43C5.314 5.48 1.502 10.578 1.502 10.578s2.146 5.746 6.972 6.254v-1.51c-3.588-.6-4.998-4.744-4.998-4.744z"/></svg>
+          </div>
+          <span class="hw-card-name">NVIDIA NVENC</span>
+          <p class="hw-card-desc">GPU-accelerated H.264 &amp; H.265 encoding via CUDA cores</p>
+          <span class="hw-auto-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Auto-detected</span>
+        </div>
+        <div class="hw-card hw-card--amd">
+          <div class="hw-icon hw-icon--amd">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.324 9.137l1.559-3.143h4.12L17.711 18.3h-4.044l1.309-2.575-3.01-6.588H7.597L3.18 18.3H0l6.492-12.306h6.191l1.307 2.81 4.334.333z"/></svg>
+          </div>
+          <span class="hw-card-name">AMD AMF</span>
+          <p class="hw-card-desc">Advanced Media Framework for Radeon GPU encoding</p>
+          <span class="hw-auto-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Auto-detected</span>
+        </div>
+        <div class="hw-card hw-card--apple">
+          <div class="hw-icon hw-icon--apple">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.37 2.83zM13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+          </div>
+          <span class="hw-card-name">VideoToolbox</span>
+          <p class="hw-card-desc">Native macOS hardware encoding for Apple Silicon &amp; Intel Macs</p>
+          <span class="hw-auto-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Auto-detected</span>
+        </div>
+        <div class="hw-card hw-card--intel">
+          <div class="hw-icon hw-icon--intel">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.06 8.94a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zM1.5 17.5V6.5h2.75v11H1.5zm5.5 0V9h2.5v1.05c.6-.8 1.55-1.3 2.75-1.3 2.1 0 3.5 1.55 3.5 3.95v4.8h-2.5v-4.4c0-1.3-.65-2.05-1.7-2.05-1.1 0-2.05.85-2.05 2.2v4.25H7zm11.8 0V9h2.5v8.5h-2.5z"/></svg>
+          </div>
+          <span class="hw-card-name">Intel QSV</span>
+          <p class="hw-card-desc">Quick Sync Video for fast encoding on Intel integrated &amp; Arc GPUs</p>
+          <span class="hw-auto-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Auto-detected</span>
+        </div>
+      </div>
+      <div class="hw-speed">
+        <span class="hw-speed-title">Encoding Speed Comparison</span>
+        <div class="hw-speed-row">
+          <span class="hw-speed-label">Software</span>
+          <div class="hw-speed-track"><div class="hw-speed-bar hw-speed-bar--sw">1x</div></div>
+          <span class="hw-speed-mult hw-speed-mult--dim">1x</span>
+        </div>
+        <div class="hw-speed-row">
+          <span class="hw-speed-label">Hardware</span>
+          <div class="hw-speed-track"><div class="hw-speed-bar hw-speed-bar--hw">5&ndash;8x</div></div>
+          <span class="hw-speed-mult hw-speed-mult--bright">5-8x</span>
+        </div>
+      </div>
+      <p class="hw-tagline">ShrinkRay <strong>auto-detects your hardware</strong> and picks the fastest encoder.<br>Falls back gracefully to software encoding when no GPU is available.</p>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- ═══════════════════════════════════════════════════════
+       Codec & Quality
+       ═══════════════════════════════════════════════════════ -->
+  <section class="codec-section">
+    <div class="codec-glow codec-glow--violet"></div>
+    <div class="codec-glow codec-glow--cyan"></div>
+    <div class="codec-container">
+      <div class="codec-header">
+        <span class="codec-label">Encoding Engine</span>
+        <h2 class="codec-title animate-on-scroll">Every Codec, Total Control</h2>
+        <p class="codec-subtitle">Pick the right codec for your use case. Fine-tune quality, speed, and file size down to the last byte.</p>
+      </div>
+      <div class="codec-grid">
+        <div class="codec-card">
+          <h3 class="codec-card-title">
+            <span class="codec-card-icon codec-card-icon--violet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/><line x1="17" y1="17" x2="22" y2="17"/></svg></span>
+            Codec Comparison
+          </h3>
+          <div class="codec-list">
+            <div class="codec-item"><div class="codec-item-header"><span class="codec-name">H.264 / AVC</span><span class="codec-tag codec-tag--compat">Most Compatible</span></div><div class="codec-bar-wrap"><div class="codec-bar codec-bar--h264">100 MB</div></div></div>
+            <div class="codec-item"><div class="codec-item-header"><span class="codec-name">H.265 / HEVC</span><span class="codec-tag codec-tag--compress">Best Compression</span></div><div class="codec-bar-wrap"><div class="codec-bar codec-bar--h265">60 MB</div></div></div>
+            <div class="codec-item"><div class="codec-item-header"><span class="codec-name">AV1</span><span class="codec-tag codec-tag--nextgen">Next-Gen</span></div><div class="codec-bar-wrap"><div class="codec-bar codec-bar--av1">45 MB</div></div></div>
+            <div class="codec-item"><div class="codec-item-header"><span class="codec-name">VP9</span><span class="codec-tag codec-tag--open">Open &middot; Web</span></div><div class="codec-bar-wrap"><div class="codec-bar codec-bar--vp9">55 MB</div></div></div>
+          </div>
+          <p class="codec-chart-note">Same quality source &mdash; relative output file sizes</p>
+        </div>
+        <div class="codec-card">
+          <h3 class="codec-card-title">
+            <span class="codec-card-icon codec-card-icon--cyan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg></span>
+            Quality Controls
+          </h3>
+          <div class="codec-controls">
+            <div class="codec-control"><div class="codec-control-header"><span class="codec-control-name">CRF Fine-Tuning</span><span class="codec-control-value">18</span></div><div class="codec-slider-track"><div class="codec-slider-fill codec-slider-fill--crf"></div><div class="codec-slider-thumb codec-slider-thumb--crf"></div></div><div class="codec-slider-labels"><span class="codec-slider-label">0 Lossless</span><span class="codec-slider-label">51 Smallest</span></div></div>
+            <div class="codec-control"><div class="codec-control-header"><span class="codec-control-name">Speed Preset</span><span class="codec-control-value">medium</span></div><div class="codec-slider-track"><div class="codec-slider-fill codec-slider-fill--speed"></div><div class="codec-slider-thumb codec-slider-thumb--speed"></div></div><div class="codec-slider-labels"><span class="codec-slider-label">ultrafast</span><span class="codec-slider-label">veryslow</span></div></div>
+            <hr class="codec-divider">
+            <div class="codec-control"><div class="codec-control-header"><span class="codec-control-name">Max Resolution</span><span class="codec-control-value">2160p 4K</span></div><div class="codec-slider-track"><div class="codec-slider-fill codec-slider-fill--res"></div><div class="codec-slider-thumb codec-slider-thumb--res"></div></div><div class="codec-slider-labels"><span class="codec-slider-label">480p</span><span class="codec-slider-label">4K</span></div></div>
+            <div style="display:flex;align-items:center;gap:0.5rem;padding:0.6rem 0.85rem;background:rgba(255,45,149,0.06);border:1px solid rgba(255,45,149,0.15);border-radius:8px;margin-top:0.25rem;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF2D95" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+              <span style="font-size:0.78rem;color:rgba(232,232,240,0.6);"><strong style="color:#FF2D95;font-weight:600;">Two-pass encoding</strong> for precise file size targeting</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="codec-target">
+        <span class="codec-target-badge"><span class="codec-target-badge-dot"></span>Precision Mode</span>
+        <h3 class="codec-target-title">Tell it the exact size you want</h3>
+        <p class="codec-target-desc">Need to hit a Discord upload limit or email attachment cap? Set a target size and ShrinkRay calculates the optimal bitrate automatically.</p>
+        <div class="codec-target-example"><span class="codec-target-prompt">$</span><span>shrinkray</span><span class="codec-target-flag">--target-size</span><span class="codec-target-val">25mb</span><span>video.mp4</span></div>
+      </div>
+      <div class="codec-features">
+        <span class="codec-feature-pill"><span class="codec-feature-dot codec-feature-dot--violet"></span>CRF Fine-Tuning</span>
+        <span class="codec-feature-pill"><span class="codec-feature-dot codec-feature-dot--pink"></span>Two-Pass Encoding</span>
+        <span class="codec-feature-pill"><span class="codec-feature-dot codec-feature-dot--green"></span>Target Size Mode</span>
+        <span class="codec-feature-pill"><span class="codec-feature-dot codec-feature-dot--cyan"></span>Speed Presets</span>
+        <span class="codec-feature-pill"><span class="codec-feature-dot codec-feature-dot--violet"></span>Resolution Control</span>
+        <span class="codec-feature-pill"><span class="codec-feature-dot codec-feature-dot--pink"></span>Up to 4K</span>
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- ═══════════════════════════════════════════════════════
+       Batch Processing
+       ═══════════════════════════════════════════════════════ -->
+  <section class="batch-section">
+    <div class="batch-glow batch-glow--violet"></div>
+    <div class="batch-glow batch-glow--cyan"></div>
+    <div class="batch-content">
+      <div class="batch-header">
+        <span class="batch-badge"><span class="batch-badge-dot"></span>Parallel Engine</span>
+        <h2 class="batch-title animate-on-scroll">Batch Processing at Scale</h2>
+        <p class="batch-subtitle">Point ShrinkRay at a folder and walk away. Parallel workers chew through hundreds of files while you grab coffee.</p>
+      </div>
+      <div class="batch-pipeline">
+        <div class="batch-folder">
+          <div class="batch-folder-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>./project/ (47 files)</div>
+          <div class="batch-file-item"><span>clip01.mp4</span><span class="batch-file-size">380 MB</span></div>
+          <div class="batch-file-item"><span>clip02.mp4</span><span class="batch-file-size">512 MB</span></div>
+          <div class="batch-file-item"><span>interview/take1.mov</span><span class="batch-file-size">1.2 GB</span></div>
+          <div class="batch-file-item"><span>b-roll/drone.mp4</span><span class="batch-file-size">890 MB</span></div>
+          <div class="batch-file-item"><span>finals/export_v2.mp4</span><span class="batch-file-size">2.1 GB</span></div>
+          <div class="batch-file-item" style="color:#6C6C8A;border-style:dashed;"><span>... +42 more files</span></div>
+        </div>
+        <div class="batch-connector"><div class="batch-connector-line"></div><span class="batch-connector-label">4 workers</span><div class="batch-connector-line"></div></div>
+        <div class="batch-workers">
+          <div class="batch-workers-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Parallel Workers</div>
+          <div class="batch-worker"><span class="batch-worker-id">W1</span><div class="batch-worker-bar"><div class="batch-worker-fill"></div></div><span class="batch-worker-pct">100%</span><span class="batch-worker-status batch-term-check">&#10003;</span></div>
+          <div class="batch-worker"><span class="batch-worker-id">W2</span><div class="batch-worker-bar"><div class="batch-worker-fill"></div></div><span class="batch-worker-pct">67%</span><span class="batch-worker-status" style="color:#00F0FF;">&#9654;</span></div>
+          <div class="batch-worker"><span class="batch-worker-id">W3</span><div class="batch-worker-bar"><div class="batch-worker-fill"></div></div><span class="batch-worker-pct">50%</span><span class="batch-worker-status" style="color:#7B2FF7;">&#9654;</span></div>
+          <div class="batch-worker"><span class="batch-worker-id">W4</span><div class="batch-worker-bar"><div class="batch-worker-fill"></div></div><span class="batch-worker-pct">33%</span><span class="batch-worker-status" style="color:#FF2D95;">&#9654;</span></div>
+        </div>
+      </div>
+      <div class="batch-terminal">
+        <div class="batch-terminal-bar"><span class="batch-terminal-dot"></span><span class="batch-terminal-dot"></span><span class="batch-terminal-dot"></span><span class="batch-terminal-title">shrinkray &mdash; batch mode</span></div>
+        <div class="batch-terminal-body">
+          <div class="batch-term-line"><span class="batch-term-prompt">$ </span><span class="batch-term-cmd">shrinkray</span> <span class="batch-term-flag">-i</span> <span class="batch-term-value">./project/</span> <span class="batch-term-flag">-p</span> <span class="batch-term-value">compact</span> <span class="batch-term-flag">-j</span> <span class="batch-term-value">4</span> <span class="batch-term-flag">--recursive</span> <span class="batch-term-flag">--no-tui</span><span class="batch-term-cursor"></span></div>
+          <div class="batch-term-line">&nbsp;</div>
+          <div class="batch-term-line"><span class="batch-term-found">&#128230; Found 47 video files (12.4 GB total)</span></div>
+          <div class="batch-term-line"><span class="batch-term-worker">&#9889; Worker 1:</span> <span class="batch-term-cmd">clip01.mp4</span> <span class="batch-term-bar-full">&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;</span> <span class="batch-term-pct">100%</span> <span class="batch-term-check">&#10003;</span> <span class="batch-term-savings">(380MB &#8594; 42MB)</span></div>
+          <div class="batch-term-line"><span class="batch-term-worker">&#9889; Worker 2:</span> <span class="batch-term-cmd">clip02.mp4</span> <span class="batch-term-bar-full">&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;</span><span class="batch-term-bar-empty">&#9608;&#9608;&#9608;&#9608;</span> <span class="batch-term-pct"> 67%</span></div>
+          <div class="batch-term-line"><span class="batch-term-worker">&#9889; Worker 3:</span> <span class="batch-term-cmd">clip03.mp4</span> <span class="batch-term-bar-full">&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;</span><span class="batch-term-bar-empty">&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;</span> <span class="batch-term-pct"> 50%</span></div>
+          <div class="batch-term-line"><span class="batch-term-worker">&#9889; Worker 4:</span> <span class="batch-term-cmd">clip04.mp4</span> <span class="batch-term-bar-full">&#9608;&#9608;&#9608;&#9608;</span><span class="batch-term-bar-empty">&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;</span> <span class="batch-term-pct"> 33%</span></div>
+          <div class="batch-term-line"><span class="batch-term-complete">&#10003; Complete: 12/47 files</span> <span class="batch-term-info">|</span> <span class="batch-term-savings">4.2 GB saved</span> <span class="batch-term-info">|</span> <span class="batch-term-pct">~2.1x avg compression</span></div>
+        </div>
+      </div>
+      <div class="batch-features">
+        <div class="batch-feature"><span class="batch-feature-icon">&#9889;</span><div class="batch-feature-title">Parallel Workers</div><div class="batch-feature-desc">Saturate all CPU cores with concurrent FFmpeg workers. Scale from 1 to N threads.</div><span class="batch-feature-flag">-j 4</span></div>
+        <div class="batch-feature"><span class="batch-feature-icon">&#128193;</span><div class="batch-feature-title">Recursive Scanning</div><div class="batch-feature-desc">Crawl nested directories automatically. Every video file found, no matter how deep.</div><span class="batch-feature-flag">--recursive</span></div>
+        <div class="batch-feature"><span class="batch-feature-icon">&#128200;</span><div class="batch-feature-title">Per-File Progress</div><div class="batch-feature-desc">Live progress bars for each worker. Know exactly what's happening at a glance.</div><span class="batch-feature-flag">--no-tui</span></div>
+        <div class="batch-feature"><span class="batch-feature-icon">&#9193;</span><div class="batch-feature-title">Skip Smart</div><div class="batch-feature-desc">Already compressed? Already optimal? ShrinkRay skips files that don't need work.</div><span class="batch-feature-flag">--skip-existing</span></div>
+        <div class="batch-feature"><span class="batch-feature-icon">&#128257;</span><div class="batch-feature-title">Sort Order</div><div class="batch-feature-desc">Process largest-first, smallest-first, alphabetical, or by date. Your queue, your rules.</div><span class="batch-feature-flag">--sort size-desc</span></div>
+        <div class="batch-feature"><span class="batch-feature-icon">&#128260;</span><div class="batch-feature-title">Retry Failed Jobs</div><div class="batch-feature-desc">Transient failures get retried automatically. No babysitting overnight batch runs.</div><span class="batch-feature-flag">--retry 3</span></div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- ═══════════════════════════════════════════════════════
+       Install Section
+       ═══════════════════════════════════════════════════════ -->
+  <section class="install-section" id="install">
+    <div class="install-header">
+      <span class="install-label">Get Started</span>
+      <h2 class="install-title animate-on-scroll">Install ShrinkRay</h2>
+    </div>
+    <div class="install-tabs">
+      <input type="radio" name="install-tab" id="install-tab-ps" class="install-tab-input" checked>
+      <input type="radio" name="install-tab" id="install-tab-shell" class="install-tab-input">
+      <input type="radio" name="install-tab" id="install-tab-go" class="install-tab-input">
+      <input type="radio" name="install-tab" id="install-tab-releases" class="install-tab-input">
+      <div class="install-tab-labels">
+        <label for="install-tab-ps" class="install-tab-label">PowerShell</label>
+        <label for="install-tab-shell" class="install-tab-label">Shell Script</label>
+        <label for="install-tab-go" class="install-tab-label">Go Install</label>
+        <label for="install-tab-releases" class="install-tab-label">GitHub Releases</label>
+      </div>
+      <div class="install-panels">
+        <div class="install-panel install-panel-ps">
+          <div class="install-code-block">
+            <button class="install-copy-btn" onclick="copyCode(this)">Copy</button>
+            <span style="color:#6C6C8A;"># Windows PowerShell</span><br>
+            <span style="color:#39FF14;">irm</span> https://raw.githubusercontent.com/jparkerweb/shrinkray/main/install.ps1 | <span style="color:#39FF14;">iex</span>
+          </div>
+          <p class="install-note">Downloads to <code>%LOCALAPPDATA%\shrinkray</code> and adds to PATH.</p>
+        </div>
+        <div class="install-panel install-panel-shell">
+          <div class="install-code-block">
+            <button class="install-copy-btn" onclick="copyCode(this)">Copy</button>
+            <span style="color:#6C6C8A;"># macOS / Linux one-liner</span><br>
+            <span style="color:#39FF14;">curl</span> <span style="color:#00F0FF;">-sL</span> https://raw.githubusercontent.com/jparkerweb/shrinkray/main/install.sh | <span style="color:#39FF14;">sh</span>
+          </div>
+          <p class="install-note">Detects your OS and architecture automatically.</p>
+        </div>
+        <div class="install-panel install-panel-go">
+          <div class="install-code-block">
+            <button class="install-copy-btn" onclick="copyCode(this)">Copy</button>
+            <span style="color:#6C6C8A;"># Build from source with Go 1.25+</span><br>
+            <span style="color:#39FF14;">go install</span> github.com/jparkerweb/shrinkray@latest
+          </div>
+          <p class="install-note">Requires Go 1.25.0 or later. Binary lands in <code>$GOPATH/bin</code>.</p>
+        </div>
+        <div class="install-panel install-panel-releases">
+          <div class="install-code-block">
+            <button class="install-copy-btn" onclick="copyCode(this)">Copy</button>
+            <span style="color:#6C6C8A;"># Download the latest release for your platform</span><br>
+            <span style="color:#00F0FF;">https://github.com/jparkerweb/shrinkray/releases/latest</span><br><br>
+            <span style="color:#6C6C8A;"># Extract and move to your PATH</span><br>
+            <span style="color:#39FF14;">tar</span> <span style="color:#00F0FF;">-xzf</span> shrinkray_*.tar.gz<br>
+            <span style="color:#39FF14;">sudo mv</span> shrinkray /usr/local/bin/
+          </div>
+          <p class="install-note">Pre-built binaries for Windows, macOS (amd64/arm64), and Linux (amd64/arm64).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- ═══════════════════════════════════════════════════════
+       Comparison Table
+       ═══════════════════════════════════════════════════════ -->
+  <section class="comparison-section">
+    <div class="comparison-header">
+      <h2 class="comparison-title animate-on-scroll">How ShrinkRay Compares</h2>
+      <p class="comparison-subtitle">The best of CLI power with none of the complexity.</p>
+    </div>
+    <div class="comparison-table-wrap">
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Raw FFmpeg</th>
+            <th>HandBrake</th>
+            <th class="highlight-col">ShrinkRay</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="feature-label">Smart Presets</td>
+            <td><span class="cross">&#10007;</span> Manual flags</td>
+            <td><span class="partial">~</span> Basic presets</td>
+            <td class="highlight-col"><span class="check">&#10003;</span> 18 smart presets</td>
+          </tr>
+          <tr>
+            <td class="feature-label">HW Auto-Detection</td>
+            <td><span class="cross">&#10007;</span> Manual config</td>
+            <td><span class="check">&#10003;</span> Yes</td>
+            <td class="highlight-col"><span class="check">&#10003;</span> 4 accelerators</td>
+          </tr>
+          <tr>
+            <td class="feature-label">Batch Processing</td>
+            <td><span class="partial">~</span> Shell scripts</td>
+            <td><span class="check">&#10003;</span> Queue</td>
+            <td class="highlight-col"><span class="check">&#10003;</span> Parallel workers</td>
+          </tr>
+          <tr>
+            <td class="feature-label">Interactive TUI</td>
+            <td><span class="cross">&#10007;</span> None</td>
+            <td><span class="check">&#10003;</span> GUI only</td>
+            <td class="highlight-col"><span class="check">&#10003;</span> Terminal wizard</td>
+          </tr>
+          <tr>
+            <td class="feature-label">Headless / Scripting</td>
+            <td><span class="check">&#10003;</span> Yes</td>
+            <td><span class="partial">~</span> CLI mode</td>
+            <td class="highlight-col"><span class="check">&#10003;</span> Full flag parity</td>
+          </tr>
+          <tr>
+            <td class="feature-label">Target File Size</td>
+            <td><span class="partial">~</span> Manual bitrate calc</td>
+            <td><span class="cross">&#10007;</span> No</td>
+            <td class="highlight-col"><span class="check">&#10003;</span> --target-size</td>
+          </tr>
+          <tr>
+            <td class="feature-label">Single Binary</td>
+            <td><span class="cross">&#10007;</span> FFmpeg suite</td>
+            <td><span class="cross">&#10007;</span> Installer</td>
+            <td class="highlight-col"><span class="check">&#10003;</span> Zero deps</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- ═══════════════════════════════════════════════════════
+       Use Cases
+       ═══════════════════════════════════════════════════════ -->
+  <section class="usecases-section">
+    <div class="usecases-inner">
+      <div class="usecases-header">
+        <span class="usecases-label">Use Cases</span>
+        <h2 class="usecases-title animate-on-scroll">Built for Everyone</h2>
+        <p class="usecases-subtitle">From solo creators to automated pipelines, ShrinkRay fits the way you work.</p>
+      </div>
+      <div class="usecases-grid">
+        <div class="usecases-card usecases-card--violet"><span class="usecases-icon" aria-hidden="true">&#x1F3AE;</span><h3 class="usecases-persona">Content Creators</h3><p class="usecases-desc">Compress gameplay footage for Discord and YouTube without visible quality loss. Hit upload limits effortlessly while keeping every frame crisp.</p></div>
+        <div class="usecases-card usecases-card--pink"><span class="usecases-icon" aria-hidden="true">&#x1F4F1;</span><h3 class="usecases-persona">Social Media Managers</h3><p class="usecases-desc">One-click presets tuned for TikTok, Instagram, and Twitter. Export platform-ready files without memorizing codec settings.</p></div>
+        <div class="usecases-card usecases-card--cyan"><span class="usecases-icon" aria-hidden="true">&#x1F3E2;</span><h3 class="usecases-persona">DevOps / CI/CD</h3><p class="usecases-desc">Headless mode with stdin pipe integration for automated video processing pipelines. Drop ShrinkRay into any build or media workflow.</p></div>
+        <div class="usecases-card usecases-card--gradient-vp"><span class="usecases-icon" aria-hidden="true">&#x1F3AC;</span><h3 class="usecases-persona">Video Editors</h3><p class="usecases-desc">Batch compress project exports while preserving quality. Process entire folders of renders overnight and reclaim drive space by morning.</p></div>
+        <div class="usecases-card usecases-card--gradient-vc"><span class="usecases-icon" aria-hidden="true">&#x1F4BE;</span><h3 class="usecases-persona">Digital Archivists</h3><p class="usecases-desc">Archive large video libraries with H.265 or AV1 at near-lossless quality. Slash storage costs without sacrificing a single detail.</p></div>
+        <div class="usecases-card usecases-card--gradient-cp"><span class="usecases-icon" aria-hidden="true">&#x1F4E7;</span><h3 class="usecases-persona">Business Users</h3><p class="usecases-desc">Email-friendly compression that just works. Shrink meeting recordings and demos to shareable sizes without touching a settings panel.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- ═══════════════════════════════════════════════════════
+       Cross-Platform
+       ═══════════════════════════════════════════════════════ -->
+  <section class="xplat-section">
+    <div class="xplat-glow xplat-glow--1"></div>
+    <div class="xplat-glow xplat-glow--2"></div>
+    <div class="xplat-inner">
+      <header class="xplat-header">
+        <span class="xplat-eyebrow"><span class="xplat-eyebrow-icon">&#x26A1;</span>Cross-Platform</span>
+        <h2 class="xplat-title animate-on-scroll">Runs Everywhere</h2>
+        <p class="xplat-subtitle">A <strong>single static binary</strong> with zero runtime dependencies&mdash;just bring your own FFmpeg. Built with Go and shipped via GoReleaser for every major OS and architecture.</p>
+      </header>
+      <div class="xplat-grid">
+        <div class="xplat-card">
+          <div class="xplat-os-icon xplat-os-icon--windows"><div class="xplat-win-grid"><span></span><span></span><span></span><span></span></div></div>
+          <div class="xplat-card-body"><div class="xplat-os-name">Windows</div><div class="xplat-arches"><span class="xplat-arch-badge"><span class="xplat-arch-dot"></span>amd64</span></div><div class="xplat-install"><div class="xplat-install-label">Install</div><div class="xplat-install-wrap"><code class="xplat-install-code">irm https://raw.githubusercontent.com/jparkerweb/shrinkray/main/scripts/install.ps1 | iex</code><button class="xplat-copy-btn" onclick="navigator.clipboard.writeText('irm https://raw.githubusercontent.com/jparkerweb/shrinkray/main/scripts/install.ps1 | iex');this.querySelector('svg').style.color='#39FF14';setTimeout(()=>this.querySelector('svg').style.color='',1500)" aria-label="Copy command"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div></div>
+        </div>
+        <div class="xplat-card">
+          <div class="xplat-os-icon xplat-os-icon--macos"><svg viewBox="0 0 24 24" fill="currentColor" width="26" height="26" style="color:#B4B4C3"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.37 2.83zM13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg></div>
+          <div class="xplat-card-body"><div class="xplat-os-name">macOS</div><div class="xplat-arches"><span class="xplat-arch-badge"><span class="xplat-arch-dot"></span>amd64</span><span class="xplat-arch-badge xplat-arch-badge--arm"><span class="xplat-arch-dot"></span>arm64</span></div><div class="xplat-install"><div class="xplat-install-label">Install</div><div class="xplat-install-wrap"><code class="xplat-install-code">curl -fsSL https://raw.githubusercontent.com/jparkerweb/shrinkray/main/scripts/install.sh | bash</code><button class="xplat-copy-btn" onclick="navigator.clipboard.writeText('curl -fsSL https://raw.githubusercontent.com/jparkerweb/shrinkray/main/scripts/install.sh | bash');this.querySelector('svg').style.color='#39FF14';setTimeout(()=>this.querySelector('svg').style.color='',1500)" aria-label="Copy command"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div></div>
+        </div>
+        <div class="xplat-card">
+          <div class="xplat-os-icon xplat-os-icon--linux">&#x1F427;</div>
+          <div class="xplat-card-body"><div class="xplat-os-name">Linux</div><div class="xplat-arches"><span class="xplat-arch-badge"><span class="xplat-arch-dot"></span>amd64</span><span class="xplat-arch-badge xplat-arch-badge--arm"><span class="xplat-arch-dot"></span>arm64</span></div><div class="xplat-install"><div class="xplat-install-label">Install</div><div class="xplat-install-wrap"><code class="xplat-install-code">curl -fsSL https://raw.githubusercontent.com/jparkerweb/shrinkray/main/scripts/install.sh | bash</code><button class="xplat-copy-btn" onclick="navigator.clipboard.writeText('curl -fsSL https://raw.githubusercontent.com/jparkerweb/shrinkray/main/scripts/install.sh | bash');this.querySelector('svg').style.color='#39FF14';setTimeout(()=>this.querySelector('svg').style.color='',1500)" aria-label="Copy command"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div></div>
+        </div>
+      </div>
+      <div class="xplat-features">
+        <div class="xplat-feature"><div class="xplat-feature-icon">&#x1F4E6;</div><span><strong>Single binary</strong>&mdash;no installers</span></div>
+        <div class="xplat-feature"><div class="xplat-feature-icon">&#x2699;&#xFE0F;</div><span><strong>Zero dependencies</strong> (just FFmpeg)</span></div>
+        <div class="xplat-feature"><div class="xplat-feature-icon">&#x1F680;</div><span>Built with <strong>Go</strong> + GoReleaser</span></div>
+      </div>
+      <div class="xplat-shells">
+        <span class="xplat-shells-label">Shell completions:</span>
+        <span class="xplat-shell-tag">bash</span>
+        <span class="xplat-shell-tag">zsh</span>
+        <span class="xplat-shell-tag">fish</span>
+        <span class="xplat-shell-tag">powershell</span>
+      </div>
+      <div class="xplat-download-wrap">
+        <a href="https://github.com/jparkerweb/shrinkray/releases/latest" class="xplat-download-btn" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download for Your Platform
+        </a>
+        <span class="xplat-download-hint">Auto-detects your OS &middot; All releases on GitHub</span>
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- ═══════════════════════════════════════════════════════
+       Configuration
+       ═══════════════════════════════════════════════════════ -->
+  <section class="config-section">
+    <div class="config-header">
+      <span class="config-badge">YAML Configuration</span>
+      <h2 class="config-title animate-on-scroll">Fully Configurable</h2>
+      <p class="config-subtitle">One config file to set your defaults, output rules, batch behavior, and theme. No flags to memorize.</p>
+    </div>
+    <div class="config-layout">
+      <div class="config-code-panel">
+        <div class="config-code-chrome"><span class="config-dot config-dot--red"></span><span class="config-dot config-dot--yellow"></span><span class="config-dot config-dot--green"></span><span class="config-code-filename">config.yaml</span></div>
+        <div class="config-code">
+          <div class="config-code-line"><span class="config-line-num">1</span><span><span class="config-section-key">defaults</span><span class="config-key">:</span></span></div>
+          <div class="config-code-line config-code-line--highlighted"><span class="config-line-num">2</span><span>&nbsp;&nbsp;<span class="config-key">preset</span>: <span class="config-str">balanced</span></span><span class="config-annotation">SMART PRESETS</span></div>
+          <div class="config-code-line config-code-line--highlighted"><span class="config-line-num">3</span><span>&nbsp;&nbsp;<span class="config-key">codec</span>: <span class="config-str">h265</span></span><span class="config-annotation">HEVC DEFAULT</span></div>
+          <div class="config-code-line"><span class="config-line-num">4</span><span></span></div>
+          <div class="config-code-line"><span class="config-line-num">5</span><span><span class="config-section-key">output</span><span class="config-key">:</span></span></div>
+          <div class="config-code-line"><span class="config-line-num">6</span><span>&nbsp;&nbsp;<span class="config-key">suffix</span>: <span class="config-str">_shrunk</span></span></div>
+          <div class="config-code-line config-code-line--highlighted"><span class="config-line-num">7</span><span>&nbsp;&nbsp;<span class="config-key">mode</span>: <span class="config-str">suffix</span></span><span class="config-annotation">SAFE OUTPUT</span></div>
+          <div class="config-code-line"><span class="config-line-num">8</span><span>&nbsp;&nbsp;<span class="config-key">conflict</span>: <span class="config-str">rename</span></span></div>
+          <div class="config-code-line"><span class="config-line-num">9</span><span></span></div>
+          <div class="config-code-line"><span class="config-line-num">10</span><span><span class="config-section-key">batch</span><span class="config-key">:</span></span></div>
+          <div class="config-code-line config-code-line--highlighted"><span class="config-line-num">11</span><span>&nbsp;&nbsp;<span class="config-key">jobs</span>: <span class="config-num">2</span></span><span class="config-annotation">PARALLEL</span></div>
+          <div class="config-code-line"><span class="config-line-num">12</span><span>&nbsp;&nbsp;<span class="config-key">skipExisting</span>: <span class="config-bool">false</span></span></div>
+          <div class="config-code-line"><span class="config-line-num">13</span><span>&nbsp;&nbsp;<span class="config-key">sort</span>: <span class="config-str">size-asc</span></span></div>
+          <div class="config-code-line"><span class="config-line-num">14</span><span></span></div>
+          <div class="config-code-line"><span class="config-line-num">15</span><span><span class="config-section-key">ui</span><span class="config-key">:</span></span></div>
+          <div class="config-code-line config-code-line--highlighted"><span class="config-line-num">16</span><span>&nbsp;&nbsp;<span class="config-key">theme</span>: <span class="config-str">neon-dusk</span></span><span class="config-annotation">THEMES</span></div>
+          <div class="config-code-line"><span class="config-line-num">17</span><span>&nbsp;&nbsp;<span class="config-key">animations</span>: <span class="config-bool">true</span></span></div>
+        </div>
+      </div>
+      <div class="config-details">
+        <div class="config-detail-card"><div class="config-detail-icon config-detail-icon--preset">P</div><div class="config-detail-title">Smart Presets & Codec</div><p class="config-detail-desc">Set your default compression preset and codec once. Choose from 18 built-in presets like <code>balanced</code>, <code>web-optimized</code>, or <code>archive</code> so every encode starts exactly how you want.</p></div>
+        <div class="config-detail-card"><div class="config-detail-icon config-detail-icon--output">O</div><div class="config-detail-title">Output Rules</div><p class="config-detail-desc">Control naming with <code>suffix</code> or <code>subfolder</code> mode. Conflict resolution via <code>rename</code>, <code>overwrite</code>, or <code>skip</code> ensures your originals are never touched.</p></div>
+        <div class="config-detail-card"><div class="config-detail-icon config-detail-icon--batch">B</div><div class="config-detail-title">Batch Processing</div><p class="config-detail-desc">Run parallel encodes with <code>jobs: 2</code>, skip already-compressed files, and sort the queue by size, name, or date. Process entire directories hands-free.</p></div>
+        <div class="config-detail-card"><div class="config-detail-icon config-detail-icon--theme">T</div><div class="config-detail-title">UI Theming</div><p class="config-detail-desc">Switch between <code>neon-dusk</code> and <code>electric-sunset</code> color themes. Toggle animations on or off depending on your terminal preference.</p></div>
+      </div>
+    </div>
+    <div class="config-paths">
+      <div class="config-path-card"><span class="config-path-label">Linux / macOS</span><span class="config-path-value">~/.config/shrinkray/config.yaml</span></div>
+      <div class="config-path-card"><span class="config-path-label">Windows</span><span class="config-path-value">%APPDATA%\shrinkray\config.yaml</span></div>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- ═══════════════════════════════════════════════════════
+       Open Source CTA
+       ═══════════════════════════════════════════════════════ -->
+  <section class="oss-section">
+    <div class="oss-container">
+      <h2 class="oss-title animate-on-scroll">Open Source &amp; Community Driven</h2>
+      <p class="oss-subtitle">ShrinkRay is Apache 2.0 licensed and welcomes contributions</p>
+      <div class="oss-graph" aria-hidden="true" id="oss-graph"></div>
+      <div class="oss-badges">
+        <a href="https://github.com/jparkerweb/shrinkray/stargazers" class="oss-badge" target="_blank" rel="noopener"><span class="oss-badge-dot oss-badge-dot--stars"></span>Stars</a>
+        <a href="https://github.com/jparkerweb/shrinkray/network/members" class="oss-badge" target="_blank" rel="noopener"><span class="oss-badge-dot oss-badge-dot--forks"></span>Forks</a>
+        <a href="https://github.com/jparkerweb/shrinkray/issues" class="oss-badge" target="_blank" rel="noopener"><span class="oss-badge-dot oss-badge-dot--issues"></span>Issues</a>
+      </div>
+      <div class="oss-actions">
+        <a href="https://github.com/jparkerweb/shrinkray" class="oss-card" target="_blank" rel="noopener"><div class="oss-card-icon">&#11088;</div><h3 class="oss-card-heading">Star on GitHub</h3><p class="oss-card-desc">Show your support and help others discover ShrinkRay</p></a>
+        <a href="https://github.com/jparkerweb/shrinkray/issues" class="oss-card" target="_blank" rel="noopener"><div class="oss-card-icon">&#128027;</div><h3 class="oss-card-heading">Report Issues</h3><p class="oss-card-desc">Found a bug or have a suggestion? Let us know</p></a>
+        <a href="https://github.com/jparkerweb/shrinkray/pulls" class="oss-card" target="_blank" rel="noopener"><div class="oss-card-icon">&#128256;</div><h3 class="oss-card-heading">Contribute</h3><p class="oss-card-desc">Pull requests are welcome &mdash; check the open issues</p></a>
+      </div>
+      <div class="oss-cta-wrap">
+        <a href="https://github.com/jparkerweb/shrinkray" class="oss-cta-btn" target="_blank" rel="noopener">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          View on GitHub
+        </a>
+      </div>
+      <div class="oss-built-with">Built with &#10084;&#65039; in <span>Go</span></div>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- ═══════════════════════════════════════════════════════
+       Footer
+       ═══════════════════════════════════════════════════════ -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-logo">ShrinkRay</div>
+      <p class="footer-tagline">Less bytes, same vibes.</p>
+      <div class="footer-links">
+        <a href="https://github.com/jparkerweb/shrinkray" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://github.com/jparkerweb/shrinkray/releases" target="_blank" rel="noopener">Releases</a>
+        <a href="https://github.com/jparkerweb/shrinkray/issues" target="_blank" rel="noopener">Issues</a>
+        <a href="https://github.com/jparkerweb/shrinkray/blob/main/LICENSE" target="_blank" rel="noopener">License</a>
+      </div>
+      <a href="https://github.com/jparkerweb/shrinkray" target="_blank" rel="noopener" class="footer-star-btn">
+        <svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        Star on GitHub
+      </a>
+      <div class="footer-meta">
+        <span class="footer-mit">Apache 2.0</span>
+        <span>Made with &#10084;&#65039; using Go + FFmpeg</span>
+        <span>&copy; 2025 ShrinkRay. All rights reserved.</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ═══════════════════════════════════════════════════════
+       JavaScript
+       ═══════════════════════════════════════════════════════ -->
+  <script>
+    (function() {
+      'use strict';
+
+      // ── OSS Contribution Graph ──
+      var g = document.getElementById('oss-graph');
+      if (g) {
+        var pattern = [0,0,1,0,2,0,0,1,0,0,3,1,0,4,2,0,1,0,0,3,0,0,1,2,0,0,
+                       0,1,0,0,0,1,2,0,0,0,1,0,3,0,0,2,0,4,1,0,0,0,1,0,0,2,
+                       1,0,0,2,0,0,1,0,3,1,0,0,2,0,4,0,1,0,2,0,0,1,0,3,0,0,
+                       0,0,1,0,0,3,0,2,0,0,4,1,0,0,2,1,0,0,3,0,1,0,2,0,0,1,
+                       0,2,0,1,0,0,2,0,0,1,0,3,0,0,1,0,4,2,0,0,1,0,0,2,1,0,
+                       1,0,0,0,2,0,0,1,4,0,0,2,1,0,0,3,0,0,1,2,0,0,1,0,0,3,
+                       0,0,2,0,0,1,0,0,0,2,1,0,0,1,3,0,0,2,0,0,4,0,1,0,0,2];
+        var cols = 26, rows = 7;
+        for (var c = 0; c < cols; c++) {
+          var col = document.createElement('div');
+          col.className = 'oss-graph-col';
+          for (var r = 0; r < rows; r++) {
+            var cell = document.createElement('div');
+            cell.className = 'oss-graph-cell';
+            cell.setAttribute('data-level', pattern[r * cols + c]);
+            col.appendChild(cell);
+          }
+          g.appendChild(col);
+        }
+      }
+
+      // ── Smooth Scroll for Anchor Links ──
+      document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
+        anchor.addEventListener('click', function(e) {
+          var target = document.querySelector(this.getAttribute('href'));
+          if (target) {
+            e.preventDefault();
+            var navHeight = 64;
+            var top = target.getBoundingClientRect().top + window.pageYOffset - navHeight;
+            window.scrollTo({ top: top, behavior: 'smooth' });
+            // Close mobile menu if open
+            var toggle = document.getElementById('nav-toggle');
+            if (toggle) toggle.checked = false;
+          }
+        });
+      });
+
+      // ── IntersectionObserver: Scroll Animations ──
+      var animEls = document.querySelectorAll('.animate-on-scroll');
+      if ('IntersectionObserver' in window && animEls.length) {
+        var observer = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
+        animEls.forEach(function(el) { observer.observe(el); });
+      }
+
+      // ── Navbar Scroll Effect ──
+      var navbar = document.getElementById('navbar');
+      var lastScroll = 0;
+      window.addEventListener('scroll', function() {
+        var scrollY = window.pageYOffset || document.documentElement.scrollTop;
+        if (scrollY > 50) {
+          navbar.classList.add('nav-scrolled');
+        } else {
+          navbar.classList.remove('nav-scrolled');
+        }
+        lastScroll = scrollY;
+      }, { passive: true });
+
+      // ── Active Nav Link Highlighting ──
+      var sections = document.querySelectorAll('section[id]');
+      var navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+      window.addEventListener('scroll', function() {
+        var scrollPos = window.pageYOffset + 100;
+        sections.forEach(function(section) {
+          var top = section.offsetTop;
+          var height = section.offsetHeight;
+          var id = section.getAttribute('id');
+          if (scrollPos >= top && scrollPos < top + height) {
+            navLinks.forEach(function(link) {
+              link.classList.remove('active');
+              if (link.getAttribute('href') === '#' + id) {
+                link.classList.add('active');
+              }
+            });
+          }
+        });
+      }, { passive: true });
+
+      // ── Counter Animation for Stats ──
+      var statNumbers = document.querySelectorAll('.stat-number[data-count]');
+      if ('IntersectionObserver' in window && statNumbers.length) {
+        var counterObserver = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              var el = entry.target;
+              var target = parseInt(el.getAttribute('data-count'), 10);
+              var duration = 1500;
+              var start = 0;
+              var startTime = null;
+              var suffix = '';
+              // Check for percent stat
+              if (el.closest('.stat-item') && el.closest('.stat-item').querySelector('.stat-label')) {
+                var label = el.closest('.stat-item').querySelector('.stat-label').textContent;
+                if (label.indexOf('Reduction') !== -1) suffix = '%';
+              }
+              function animate(currentTime) {
+                if (!startTime) startTime = currentTime;
+                var elapsed = currentTime - startTime;
+                var progress = Math.min(elapsed / duration, 1);
+                // Ease out cubic
+                var eased = 1 - Math.pow(1 - progress, 3);
+                var current = Math.round(eased * target);
+                el.textContent = current + suffix;
+                if (progress < 1) {
+                  requestAnimationFrame(animate);
+                }
+              }
+              requestAnimationFrame(animate);
+              counterObserver.unobserve(el);
+            }
+          });
+        }, { threshold: 0.5 });
+        statNumbers.forEach(function(el) { counterObserver.observe(el); });
+      }
+    })();
+
+    // ── Copy to Clipboard ──
+    function copyCode(btn) {
+      var block = btn.parentElement;
+      var code = block.textContent.replace('Copy', '').trim();
+      navigator.clipboard.writeText(code).then(function() {
+        btn.textContent = 'Copied!';
+        setTimeout(function() { btn.textContent = 'Copy'; }, 2000);
+      }).catch(function() {
+        btn.textContent = 'Failed';
+        setTimeout(function() { btn.textContent = 'Copy'; }, 2000);
+      });
+    }
+  </script>
+
+</body>
+</html>
