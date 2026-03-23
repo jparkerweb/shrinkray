@@ -20,8 +20,8 @@
 
 | Key | Name | Use Case |
 |-----|------|----------|
-| web | Web Optimized | Fast-start MP4, balanced quality |
-| email | Email Friendly | ≤25 MB target, smaller resolution |
+| web | Web Delivery | Fast-start MP4, balanced quality |
+| email | Email Friendly | 20 MB target, smaller resolution |
 | archive | Archive | Near-lossless long-term storage |
 | slideshow | Slideshow/Screencast | Low-motion optimization |
 | 4k-to-1080 | 4K → 1080p | Downscale with quality preservation |
@@ -34,8 +34,8 @@
 | discord-nitro | Discord Nitro | 50 MB | 1080p | Target size mode |
 | whatsapp | WhatsApp | 16 MB | 720p | H.264 required |
 | twitter | Twitter/X | 512 MB | 1920x1200 | AAC stereo |
-| instagram | Instagram | 250 MB | 1080x1920 / 1080x1080 | AAC mono |
-| tiktok | TikTok | 287 MB | 1080x1920 | H.264 baseline |
+| instagram | Instagram | 250 MB | 1920x1080 | AAC 128k (source channels) |
+| tiktok | TikTok | 287 MB | 1920x1080 | H.264, 60fps cap |
 | youtube | YouTube | — | original | High quality upload |
 
 ## Preset Struct
@@ -44,8 +44,8 @@ Each preset is a Go struct containing: key, name, description, category, codec, 
 
 ## Smart Recommendation Engine
 
-Located in `presets/recommend.go`. Analyzes source video metadata (resolution, duration, bitrate, codec, file size) and suggests the top 3 presets ranked by relevance. Displayed in the TUI with estimated output sizes and compression ratios.
+Located in `presets/recommend.go`. Analyzes source video metadata (resolution, duration, bitrate, codec, file size) and suggests the top 5 presets ranked by relevance. Displayed in the TUI with estimated output sizes and compression ratios.
 
 ## Custom Presets
 
-Users can define custom presets in their config file (`~/.config/shrinkray/config.yaml`). Custom presets can extend built-in presets by overriding specific fields.
+Users can define custom presets in a separate file (`~/.config/shrinkray/custom_presets.yaml`). Custom presets use the same YAML structure as the Preset struct (camelCase fields). Requires key, name, and codec; must specify either CRF or targetSizeMb. Defaults: container "mp4", category "quality".

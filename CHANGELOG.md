@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- CLI headless parity — 13 new `--no-tui` flags: `--hw-accel`, `--no-hw-accel`, `--audio-codec`, `--audio-bitrate`, `--audio-channels`, `--fps`, `--speed-preset`, `--target-size`, `--two-pass`, `--overwrite`, `--auto-rename`, `--extra-args`
+- Batch metadata forwarding — `--strip-metadata` and `--metadata-title` now applied in batch mode via `BatchOptions`
+- Batch SourceInfo always wired — portrait/social media scaling works correctly in batch CLI mode
 - "Delete original" option (`d` key) on complete screen — deletes source file and renames output to original filename
 - Hardware encoder automatic fallback — retries with software encoding when HW encoder fails (TUI and batch modes)
 - FFmpeg stderr output included in error messages for better diagnostics

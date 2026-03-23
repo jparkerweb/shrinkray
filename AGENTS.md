@@ -6,7 +6,7 @@ This file provides guidance to AI coding agents like Claude Code (claude.ai/code
 
 ## Project Overview
 
-**shrinkray** is a cross-platform CLI video compression tool powered by FFmpeg and built with Go using Charm's TUI libraries (Bubble Tea v2, Bubbles v2, Lip Gloss v2, Huh v2). It provides a wizard-style TUI that walks users through video compression with smart presets, hardware acceleration auto-detection, and batch processing. Tagline: "Less bytes, same vibes."
+**shrinkray** is a cross-platform CLI video compression tool powered by FFmpeg and built with Go using Charm's TUI libraries (Bubble Tea v2, Bubbles v2, Lip Gloss v2) and Fang/Cobra for CLI. It provides a wizard-style TUI that walks users through video compression with smart presets, hardware acceleration auto-detection, and batch processing. Tagline: "Less bytes, same vibes."
 
 - **Language:** Go 1.25.0+
 - **External runtime dependency:** FFmpeg/FFprobe (not bundled — detected at runtime)
@@ -32,7 +32,7 @@ Details: [Architecture](./.agents-docs/AGENTS-architecture.md)
 
 ## Technology Stack & Dependencies
 
-Go with the Charm ecosystem (Bubble Tea v2, Bubbles v2, Lip Gloss v2, Fang), plus go-ffprobe v2 and YAML v3. Build tooling: GoReleaser, Make, golangci-lint.
+Go with the Charm ecosystem (Bubble Tea v2, Bubbles v2, Lip Gloss v2, Fang, Charm Log), Cobra, plus go-ffprobe v2 and YAML v3. Build tooling: GoReleaser, Make, golangci-lint.
 
 Details: [Technology Stack](./.agents-docs/AGENTS-technology-stack.md)
 
@@ -40,7 +40,7 @@ Details: [Technology Stack](./.agents-docs/AGENTS-technology-stack.md)
 
 ## CLI Interface & Flags
 
-shrinkray supports interactive TUI mode (default) and headless mode (`--no-tui`). Subcommands: `presets`, `probe`, `version`, `completion`. Extensive encoding flags for headless/scripting use.
+shrinkray supports interactive TUI mode (default) and headless mode (`--no-tui`). Subcommands: `presets`, `probe`, `version`, `completion`. The encode workflow is the root command's default behavior. Extensive encoding flags for headless/scripting use including HW acceleration, audio control, target size, and batch processing.
 
 Details: [CLI Interface](./.agents-docs/AGENTS-cli-interface.md)
 

@@ -13,9 +13,11 @@
 | Bubbles v2 | `charm.land/bubbles/v2` | Pre-built TUI components (progress, spinner, filepicker, list, table, viewport, textinput, help, key, timer) |
 | Lip Gloss v2 | `charm.land/lipgloss/v2` | Terminal styling (colors, borders, layout, gradients) |
 | Fang | `github.com/charmbracelet/fang` | CLI skeleton (Cobra-based, styled help, completions) |
+| Cobra | `github.com/spf13/cobra` | CLI command framework (used directly alongside Fang) |
 | Charm Log | `github.com/charmbracelet/log` | Structured logging (slog-compatible) |
 | go-ffprobe v2 | `gopkg.in/vansante/go-ffprobe.v2` | FFprobe JSON parsing into Go structs |
 | YAML v3 | `gopkg.in/yaml.v3` | Config file parsing |
+| x/term | `golang.org/x/term` | Terminal state detection (TTY checks) |
 
 ## External Runtime Dependencies
 
@@ -33,4 +35,3 @@ shrinkray does NOT bundle FFmpeg. If not found, it prints platform-specific inst
 | GoReleaser | Cross-compilation, packaging, GitHub Releases |
 | Make | Dev shortcuts (`make build`, `make test`, `make lint`) |
 | golangci-lint | Linting |
-| VHS | Terminal recording for demo GIFs |

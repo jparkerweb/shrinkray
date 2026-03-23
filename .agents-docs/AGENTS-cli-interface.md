@@ -6,54 +6,62 @@
 ```
 shrinkray                           # Launch TUI (or show help if no TTY)
 shrinkray [files...]                # Launch TUI with file(s) pre-loaded
-shrinkray run [files...]            # Explicit run command (same as default)
 shrinkray presets                   # List all available presets
 shrinkray presets show <name>       # Show details for a specific preset
 shrinkray probe <file>              # Display video metadata (non-interactive)
 shrinkray version                   # Show version, build info, FFmpeg version
-shrinkray help                      # Show help
+shrinkray completion [shell]        # Generate shell completions (bash/zsh/fish/powershell)
+shrinkray help                      # Show help (built-in via Cobra)
 ```
+
+Note: There is no explicit `run` subcommand — the encode workflow is the root command's default behavior.
 
 ## Global Flags
 
 ```
 --no-tui              Disable interactive TUI, use headless mode
---config <path>       Path to config file (default: ~/.config/shrinkray/config.yaml)
---ffmpeg-path <path>  Path to FFmpeg binary (overrides PATH)
---verbose             Enable verbose logging (debug level)
---quiet               Suppress all non-error output (headless)
+--config <path>       Path to config file (default: auto-detected platform config dir)
+--log-level <level>   Log level: debug, info, warn, error (default: info)
+--no-color            Disable color output
 ```
 
 ## Encoding Flags
 
 ```
 -i, --input <path>        Input file or directory
+    --inputs <path>       Additional input video file paths (repeatable)
 -o, --output <path>       Output file path (single file) or directory
---preset <name>           Preset name (see `shrinkray presets`)
---codec <name>            Video codec: h264, h265, av1, vp9 (default: h265)
---crf <number>            CRF value (0-51 for h264/h265, 0-63 for av1/vp9)
---resolution <WxH>        Output resolution (e.g., 1920x1080)
---fps <number>            Output framerate
---speed-preset <name>     Encoder speed: ultrafast..veryslow (default: medium)
---audio-codec <name>      Audio codec: aac, opus, copy, none (default: aac)
---audio-bitrate <rate>    Audio bitrate: 64k-256k (default: 128k)
---target-size <size>      Target output file size: 10mb, 25mb, 50mb, 1gb
---two-pass                Enable two-pass encoding
---hw-accel                Force hardware acceleration
---no-hw-accel             Disable hardware acceleration
---strip-metadata          Remove EXIF/GPS metadata
---suffix <string>         Output filename suffix (default: _shrunk)
---output-dir <path>       Write outputs to this directory
---in-place                Replace source files (safe: encode → verify → replace)
---overwrite               Overwrite existing output files
---skip-existing           Skip files with existing output
---auto-rename             Auto-rename on conflict: video_shrunk(1).mp4
---audio-channels <mode>   Audio channels: stereo, mono, source
---extra-args <arg>        Extra FFmpeg arguments (repeatable)
---recursive               Recurse into subdirectories
---jobs <n>                Concurrent encoding jobs (default: 2)
---dry-run                 Show what would be done without encoding
---stdin                   Read input paths from stdin (one per line)
+-p, --preset <name>       Preset name (see `shrinkray presets`)
+    --codec <name>        Video codec: h264, h265, av1, vp9
+    --crf <number>        CRF value override (0 = use preset default)
+    --resolution <WxH>    Output resolution (e.g., 1920x1080)
+    --fps <number>        Maximum output framerate
+    --speed-preset <name> Encoder speed preset (e.g., fast, medium, slow)
+    --target-size <size>  Target output size (e.g., 25mb, 1gb) — forces two-pass
+    --two-pass            Force two-pass encoding
+    --hw-accel            Auto-detect and use hardware encoder
+    --no-hw-accel         Force software encoding
+    --audio-codec <name>  Audio codec: aac, opus, copy, none
+    --audio-bitrate <rate> Audio bitrate: 64k, 96k, 128k, 192k, 256k
+    --audio-channels <mode> Audio channels: stereo, mono, source
+    --strip-metadata      Remove all metadata from output
+    --keep-metadata       Preserve source metadata (default: true)
+    --metadata-title <s>  Set output title metadata
+    --suffix <string>     Output filename suffix (default: _shrunk)
+    --output-dir <path>   Write outputs to this directory
+    --overwrite           Overwrite existing output files
+    --auto-rename         Auto-rename on conflict: video_shrunk(1).mp4
+    --in-place            Replace source files (safe: encode → verify → replace)
+    --skip-existing       Skip files with existing output
+    --skip-optimal        Skip files already compressed with target codec
+    --extra-args <arg>    Extra FFmpeg arguments (repeatable)
+-r, --recursive           Recurse into subdirectories
+-j, --jobs <n>            Concurrent encoding jobs (default: 1)
+    --retry-failed        Retry failed jobs from persisted queue
+    --max-retries <n>     Maximum retry attempts per file (default: 2)
+    --dry-run             Show what would be done without encoding
+    --stdin               Read input paths from stdin (one per line)
+    --open                Open output folder after completion
 ```
 
 ## Shell Completions

@@ -82,11 +82,11 @@ shrinkray -i ./videos/ -p compact -j 4 --recursive --no-tui
 | Key | Name | Description |
 |-----|------|-------------|
 | `discord` | Discord | Fits within Discord's 10MB free-tier limit |
-| `discord-nitro` | Discord Nitro | Fits within Discord Nitro's 50MB limit |
-| `whatsapp` | WhatsApp | Fits within WhatsApp's 16MB limit |
-| `twitter` | Twitter / X | Optimized for Twitter upload |
-| `instagram` | Instagram | Optimized for Instagram |
-| `tiktok` | TikTok | Optimized for TikTok |
+| `discord-nitro` | Discord Nitro | Fits within Discord Nitro's 50MB limit at 1080p |
+| `whatsapp` | WhatsApp | Fits within WhatsApp's 16MB limit, capped at 30fps |
+| `twitter` | Twitter / X | Optimized for Twitter upload -- 1080p max, 60fps |
+| `instagram` | Instagram | Optimized for Instagram -- 1080p max, 30fps |
+| `tiktok` | TikTok | Optimized for TikTok -- 1080p max, 60fps, portrait-aware |
 | `youtube` | YouTube Upload | Upload-optimized for YouTube |
 
 View preset details:
@@ -119,24 +119,37 @@ shrinkray [command]
 | Flag | Short | Description |
 |------|-------|-------------|
 | `--input` | `-i` | Input video file or directory |
+| `--inputs` | | Additional input video file paths (repeatable) |
 | `--preset` | `-p` | Preset name (e.g., balanced, compact, tiny) |
 | `--output` | `-o` | Output file path |
 | `--no-tui` | | Disable interactive TUI, use headless mode |
 | `--crf` | | CRF value override |
 | `--codec` | | Video codec (h264, h265, av1, vp9) |
 | `--resolution` | | Output resolution (e.g., 1920x1080) |
+| `--fps` | | Maximum output framerate |
+| `--speed-preset` | | Encoder speed preset (e.g., fast, medium, slow) |
+| `--target-size` | | Target output size (e.g., 25mb, 1gb) -- forces two-pass |
+| `--two-pass` | | Force two-pass encoding |
+| `--hw-accel` | | Auto-detect and use hardware encoder |
+| `--no-hw-accel` | | Force software encoding |
+| `--audio-codec` | | Audio codec: aac, opus, copy, none |
+| `--audio-bitrate` | | Audio bitrate: 64k, 96k, 128k, 192k, 256k |
+| `--audio-channels` | | Audio channels: stereo, mono, source |
 | `--suffix` | | Output filename suffix (default: _shrunk) |
+| `--output-dir` | | Output directory (mirrors input structure) |
+| `--overwrite` | | Overwrite existing output files |
+| `--auto-rename` | | Auto-rename output if file exists |
+| `--in-place` | | Replace source files after verification |
 | `--jobs` | `-j` | Number of parallel encoding workers |
 | `--recursive` | `-r` | Recurse into directories for video files |
 | `--sort` | | Sort order: size-asc, size-desc, name, duration |
 | `--skip-existing` | | Skip files whose output already exists |
 | `--skip-optimal` | | Skip files already compressed with target codec |
-| `--in-place` | | Replace source files after verification |
-| `--output-dir` | | Output directory (mirrors input structure) |
 | `--retry-failed` | | Retry failed jobs from persisted queue |
 | `--max-retries` | | Maximum retry attempts per file (default: 2) |
 | `--dry-run` | | Print FFmpeg command without executing |
 | `--stdin` | | Read file paths from stdin (one per line) |
+| `--extra-args` | | Extra FFmpeg arguments (repeatable) |
 | `--strip-metadata` | | Remove all metadata from output |
 | `--keep-metadata` | | Preserve source metadata (default: true) |
 | `--metadata-title` | | Set output title metadata |
@@ -166,11 +179,16 @@ output:
 
 batch:
   jobs: 2
-  skip_existing: false
+  skipExisting: false
   sort: size-asc
 
 ui:
   theme: neon-dusk
+  animations: true
+
+ffmpeg:
+  ffmpegPath: ""
+  ffprobePath: ""
 ```
 
 ## Requirements
@@ -179,7 +197,7 @@ ui:
   - macOS: `brew install ffmpeg`
   - Linux: `sudo apt install ffmpeg` (or your distro's package manager)
   - Windows: `scoop install ffmpeg` or `choco install ffmpeg`
-- **Go 1.23+** (only required for building from source)
+- **Go 1.25+** (only required for building from source)
 
 ## Development
 

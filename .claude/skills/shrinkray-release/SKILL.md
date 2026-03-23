@@ -1,6 +1,7 @@
 ---
 name: shrinkray-release
-description: Cut a new semver release — updates CHANGELOG.md, commits, tags, and pushes to trigger the GoReleaser CI pipeline. Use this skill whenever the user says "release", "cut a release", "bump version", "tag a release", "ship it", or wants to publish a new version. Also use when the user types "/release".
+description: Cut a new semver release — updates CHANGELOG.md, commits, tags, and pushes to trigger the GoReleaser CI pipeline. Use this skill whenever the user says "release", "cut a release", "bump version", "tag a release", "ship it", or wants to publish a new version. Also use when the user types "/shrinkray-release".
+user-invocable: true
 ---
 
 # Release Workflow

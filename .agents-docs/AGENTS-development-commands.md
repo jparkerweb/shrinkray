@@ -33,10 +33,53 @@ make ci             # Run lint → test → build (mirrors GitHub Actions pipeli
 
 Always run `make ci` before pushing to catch lint errors, test failures, and build issues locally.
 
-## Release
+## Release Snapshot
 
 ```bash
-make release-dry    # Dry-run GoReleaser (no publish)
+make snapshot       # Dry-run GoReleaser build (no publish, local testing)
+```
+
+## Cleanup
+
+```bash
+make clean          # Remove built binaries and dist/ directory
+```
+
+## Cross-Platform Build Scripts
+
+For environments where `make` is unavailable, equivalent scripts are provided:
+
+```bash
+# Unix/macOS
+./scripts/build.sh [build|run|test|lint|ci|clean]
+
+# Windows PowerShell
+.\scripts\build.ps1 -Command [build|run|test|lint|ci|clean]
+```
+
+## Local Development Install (Windows)
+
+```powershell
+.\scripts\install-local.ps1
+```
+
+Builds with version info from `git describe --tags`, installs to `%LOCALAPPDATA%\shrinkray\`, and adds it to your user PATH.
+
+## Package Manager Update Scripts
+
+```bash
+./scripts/update-homebrew.sh    # Generate Homebrew formula with version/SHA256
+./scripts/update-scoop.sh       # Generate Scoop manifest with version/SHA256
+```
+
+## Remote Install Scripts
+
+```bash
+# macOS/Linux
+curl -fsSL https://raw.githubusercontent.com/jparkerweb/shrinkray/main/scripts/install.sh | bash
+
+# Windows PowerShell
+irm https://raw.githubusercontent.com/jparkerweb/shrinkray/main/scripts/install.ps1 | iex
 ```
 
 ## Module Management

@@ -20,7 +20,7 @@ Splash → FilePicker → Info → Presets → Advanced → Preview → Encoding
 | 5 | Advanced | `advanced.go` | Full options form (codec, CRF, resolution, audio, etc.) |
 | 6 | Preview | `preview.go` | Before/after comparison with estimated output size |
 | 7 | Encoding | `encoding.go` | Real-time progress bar, ETA, speed, FPS, bitrate |
-| 8 | Complete | `complete.go` | Results summary with bar chart, savings percentage |
+| 8 | Complete | `complete.go` | Results summary with bar chart, savings percentage (o: open, d: delete original, r: re-encode, n: new, q: quit) |
 | 9a | BatchQueue | `batch_queue.go` | File list with per-file status, preset assignment |
 | 9b | BatchProgress | `batch_progress.go` | Multi-file progress with current + overall bars |
 | 9c | BatchComplete | `batch_complete.go` | Batch results table with totals |
@@ -65,7 +65,7 @@ Theme switching: `Ctrl+T` at runtime. Persisted in config.
 
 ## Styling Notes
 
-- All styles defined in `tui/styles.go` using Lip Gloss v2
-- Theme struct in `tui/theme.go` — all colors referenced through the theme, never hardcoded
+- Style definitions live in `tui/style/` subdirectory; `tui/styles.go` and `tui/theme.go` are re-export wrappers
+- Theme struct in `tui/style/theme.go` — all colors referenced through the theme, never hardcoded
 - Progress bars use gradient fills (primary → secondary)
 - ASCII logo rendered with gradient coloring

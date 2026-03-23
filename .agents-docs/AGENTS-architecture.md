@@ -12,23 +12,33 @@ shrinkray/
 │   │   ├── run.go                 # Default command: TUI or headless
 │   │   ├── presets.go             # `shrinkray presets` subcommand
 │   │   ├── probe.go               # `shrinkray probe <file>` subcommand
-│   │   └── version.go             # `shrinkray version` subcommand
+│   │   ├── version.go             # `shrinkray version` subcommand
+│   │   └── completion.go          # Shell completion generation (bash/zsh/fish/powershell)
 │   ├── config/                    # Configuration management
 │   │   ├── config.go              # Config struct, Load/Save, defaults
-│   │   ├── paths.go               # Cross-platform config directory resolution
-│   │   └── custom_presets.go      # Custom preset CRUD
+│   │   └── paths.go               # Cross-platform config directory resolution
 │   ├── engine/                    # FFmpeg/FFprobe business logic (ZERO TUI deps)
-│   │   ├── probe.go               # FFprobe wrapper
-│   │   ├── probe_types.go         # Video/audio stream info structs
-│   │   ├── hdr.go                 # HDR detection
-│   │   ├── encode.go              # FFmpeg command builder + process runner
+│   │   ├── batch.go               # Batch event types (JobStarted, JobProgress, etc.)
+│   │   ├── batch_persist.go       # Persist/load batch job queue to disk
+│   │   ├── cancel.go              # Graceful FFmpeg termination (q → SIGINT → SIGKILL)
+│   │   ├── encode.go              # FFmpeg process runner
 │   │   ├── encode_args.go         # Preset → FFmpeg args translation
-│   │   ├── progress.go            # FFmpeg progress output parser
-│   │   ├── progress_types.go      # ProgressUpdate struct
+│   │   ├── errors.go              # FFmpeg error pattern matching + friendly messages
+│   │   ├── estimate.go            # Output size estimation
+│   │   ├── ffmpeg.go              # FFmpeg/FFprobe binary detection + version parsing
+│   │   ├── hdr.go                 # HDR detection
 │   │   ├── hwaccel.go             # HW encoder detection and selection
 │   │   ├── hwaccel_probe.go       # Test-encode to verify HW encoder works
-│   │   ├── cancel.go              # Graceful FFmpeg termination (q → SIGINT → SIGKILL)
-│   │   ├── estimate.go            # Output size estimation
+│   │   ├── job.go                 # Job struct and JobStatus enum for batch queue
+│   │   ├── open.go                # Cross-platform folder opening
+│   │   ├── open_unix.go           # Unix/Linux OpenFolder implementation
+│   │   ├── open_windows.go        # Windows OpenFolder implementation
+│   │   ├── output.go              # OutputMode, ConflictMode, OutputOptions
+│   │   ├── platform.go            # OS detection helper for testing
+│   │   ├── probe.go               # FFprobe wrapper
+│   │   ├── probe_types.go         # Video/audio stream info structs
+│   │   ├── progress.go            # FFmpeg progress output parser
+│   │   ├── progress_types.go      # ProgressUpdate struct
 │   │   └── target_size.go         # Two-pass bitrate calc for file size targeting
 │   ├── presets/                   # Preset definitions and recommendation
 │   │   ├── preset.go              # Preset struct definition
@@ -36,24 +46,32 @@ shrinkray/
 │   │   ├── purpose.go             # 5 purpose-driven presets
 │   │   ├── platform.go            # 7 platform-specific presets
 │   │   ├── registry.go            # Combined registry with lookup
-│   │   └── recommend.go           # Smart recommendation engine
+│   │   ├── recommend.go           # Smart recommendation engine
+│   │   └── custom_presets.go      # Custom preset CRUD (load/save from YAML)
 │   ├── tui/                       # TUI presentation layer (Bubble Tea)
 │   │   ├── app.go                 # Top-level model: screen routing, global keys
 │   │   ├── keys.go                # Global key bindings
-│   │   ├── styles.go              # Lip Gloss style definitions
-│   │   ├── theme.go               # Theme switching logic
+│   │   ├── screen.go              # Re-exports ScreenModel interface from style/
+│   │   ├── styles.go              # Re-exports style functions from style/
+│   │   ├── theme.go               # Re-exports Theme types from style/
+│   │   ├── style/                 # Style subsystem
+│   │   │   ├── screen.go          # ScreenModel interface definition
+│   │   │   ├── styles.go          # Lip Gloss style definitions + color support
+│   │   │   └── theme.go           # Theme struct and color definitions
 │   │   ├── screens/               # One file per TUI screen
 │   │   │   ├── splash.go          # Screen 1: ASCII logo
 │   │   │   ├── filepicker.go      # Screen 2: File browser
 │   │   │   ├── info.go            # Screen 3: Video metadata
 │   │   │   ├── presets.go         # Screen 4: Preset selection
-│   │   │   ├── advanced.go        # Screen 5: Options form (Huh)
+│   │   │   ├── advanced.go        # Screen 5: Options form
 │   │   │   ├── preview.go         # Screen 6: Before/after confirm
 │   │   │   ├── encoding.go        # Screen 7: Progress display
 │   │   │   ├── complete.go        # Screen 8: Results
 │   │   │   ├── batch_queue.go     # Screen 9a: Batch queue
 │   │   │   ├── batch_progress.go  # Screen 9b: Batch progress
-│   │   │   └── batch_complete.go  # Screen 9c: Batch results
+│   │   │   ├── batch_complete.go  # Screen 9c: Batch results
+│   │   │   ├── help.go            # Help overlay data + key binding definitions
+│   │   │   └── helpers.go         # Shared utility functions (formatBytes, etc.)
 │   │   └── messages/messages.go   # Custom tea.Msg types
 │   └── logging/logging.go         # slog setup
 ├── .goreleaser.yaml
