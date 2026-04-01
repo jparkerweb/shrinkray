@@ -119,6 +119,20 @@ func (m FilePickerModel) Update(msg tea.Msg) (style.ScreenModel, tea.Cmd) {
 			}
 		}
 
+		// Space key: toggle multi-select for highlighted file
+		if msg.String() == " " {
+			path := m.picker.HighlightedPath()
+			if path != "" && isVideoFile(path) {
+				if m.selectedMany[path] {
+					delete(m.selectedMany, path)
+				} else {
+					m.selectedMany[path] = true
+				}
+				m.errMsg = ""
+			}
+			return m, nil
+		}
+
 		// "b" key: proceed to batch queue with selected files
 		if msg.String() == "b" && len(m.selectedMany) > 0 {
 			paths := m.selectedPaths()
@@ -412,11 +426,15 @@ func (m FilePickerModel) View() string {
 		b.WriteString("\n")
 	}
 
-	// Multi-select count
+	// Multi-select count + file list
 	if len(m.selectedMany) > 0 {
 		b.WriteString("\n")
-		b.WriteString(style.AccentStyle().Render(fmt.Sprintf("%d file(s) selected for batch", len(m.selectedMany))))
+		b.WriteString(style.AccentStyle().Render(fmt.Sprintf("✓ %d file(s) selected for batch  [b] Start batch  [x] Clear", len(m.selectedMany))))
 		b.WriteString("\n")
+		for p := range m.selectedMany {
+			b.WriteString(style.SuccessStyle().Render("  ✓ " + filepath.Base(p)))
+			b.WriteString("\n")
+		}
 	}
 
 	// Selected file info (single-select)
@@ -441,6 +459,9 @@ func (m FilePickerModel) View() string {
 		b.WriteString(style.KeyHintStyle().Render("[Tab] Switch to browser  [Enter] Confirm  [Esc] Back"))
 	} else {
 		hints := "[←/Backspace] Up dir  [Enter] Select  [Space] Multi-select  [Tab] Path input"
+		if len(m.selectedMany) > 0 {
+			hints += "  [b] Batch  [x] Clear"
+		}
 		if runtime.GOOS == "windows" {
 			hints += "  [d] Change drive"
 		}

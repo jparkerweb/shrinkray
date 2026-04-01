@@ -7,6 +7,7 @@ import (
 
 	tea "charm.land/bubbletea/v2"
 	"charm.land/bubbles/v2/key"
+	"charm.land/bubbles/v2/viewport"
 
 	"github.com/jparkerweb/shrinkray/internal/config"
 	"github.com/jparkerweb/shrinkray/internal/engine"
@@ -25,6 +26,7 @@ type App struct {
 	height        int
 	keyMap        KeyMap
 	showHelp      bool // whether the help overlay is visible
+	viewport      viewport.Model
 
 	// Shared state passed between screens
 	videoInfo      *engine.VideoInfo
@@ -51,6 +53,16 @@ func NewApp(opts AppOptions) App {
 	if ver == "" {
 		ver = "dev"
 	}
+	vp := viewport.New()
+	vp.MouseWheelEnabled = true
+	vp.MouseWheelDelta = 3
+	// Disable Up/Down/Left/Right so they pass through to screens for navigation.
+	// Keep PgUp/PgDown and mouse wheel for scrolling overflowed content.
+	vp.KeyMap.Up.SetEnabled(false)
+	vp.KeyMap.Down.SetEnabled(false)
+	vp.KeyMap.Left.SetEnabled(false)
+	vp.KeyMap.Right.SetEnabled(false)
+
 	app := App{
 		currentScreen: messages.ScreenSplash,
 		keyMap:        DefaultKeyMap(),
@@ -58,6 +70,7 @@ func NewApp(opts AppOptions) App {
 		inputPath:     opts.InputPath,
 		videoInfo:     opts.VideoInfo,
 		version:       ver,
+		viewport:      vp,
 	}
 
 	// Initialize all screen models
@@ -102,6 +115,13 @@ func (a App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		a.width = msg.Width
 		a.height = msg.Height
+		// Reserve 2 lines for header + footer
+		vpHeight := msg.Height - 2
+		if vpHeight < 1 {
+			vpHeight = 1
+		}
+		a.viewport.SetWidth(msg.Width)
+		a.viewport.SetHeight(vpHeight)
 		// Propagate to all screens
 		var cmds []tea.Cmd
 		for screen, model := range a.screenModels {
@@ -309,14 +329,48 @@ func (a App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 
+	// Sync viewport content from current screen so scroll calculations are correct
+	a.syncViewportContent()
+
+	// Forward mouse events to the viewport for scroll wheel support
+	switch msg.(type) {
+	case tea.MouseMsg:
+		var vpCmd tea.Cmd
+		a.viewport, vpCmd = a.viewport.Update(msg)
+		// Also delegate to current screen
+		if model, ok := a.screenModels[a.currentScreen]; ok {
+			updated, cmd := model.Update(msg)
+			a.screenModels[a.currentScreen] = updated
+			return a, tea.Batch(vpCmd, cmd)
+		}
+		return a, vpCmd
+	}
+
 	// Delegate to current screen
 	if model, ok := a.screenModels[a.currentScreen]; ok {
 		updated, cmd := model.Update(msg)
 		a.screenModels[a.currentScreen] = updated
+
+		// After screen update, re-sync content and let viewport handle pgup/pgdown
+		a.syncViewportContent()
+		if _, isKey := msg.(tea.KeyPressMsg); isKey {
+			var vpCmd tea.Cmd
+			a.viewport, vpCmd = a.viewport.Update(msg)
+			return a, tea.Batch(cmd, vpCmd)
+		}
+
 		return a, cmd
 	}
 
 	return a, nil
+}
+
+// syncViewportContent sets the current screen's rendered content on the viewport
+// so that scroll offset calculations are accurate before processing input events.
+func (a *App) syncViewportContent() {
+	if model, ok := a.screenModels[a.currentScreen]; ok {
+		a.viewport.SetContent(model.View())
+	}
 }
 
 // applyAdvancedOptions applies the user's advanced choices to the selected preset.
@@ -361,24 +415,19 @@ func (a *App) applyAdvancedOptions(opts messages.AdvancedOptions) {
 
 // View renders the app.
 func (a App) View() tea.View {
-	var b strings.Builder
-
 	// Header bar
 	header := a.renderHeader()
-	b.WriteString(header)
-	b.WriteString("\n")
 
-	// Current screen
+	// Sync viewport content from current screen
 	if model, ok := a.screenModels[a.currentScreen]; ok {
-		b.WriteString(model.View())
+		a.viewport.SetContent(model.View())
 	}
+	vpView := a.viewport.View()
 
-	// Footer bar
-	b.WriteString("\n")
+	// Footer bar (includes scroll hint when content overflows)
 	footer := a.renderFooter()
-	b.WriteString(footer)
 
-	content := b.String()
+	content := header + "\n" + vpView + "\n" + footer
 
 	// Help overlay
 	if a.showHelp {
@@ -406,6 +455,7 @@ func (a App) renderHelpOverlay(base string) string {
 		{"Ctrl+C", "Quit"},
 		{"Ctrl+T", "Toggle theme"},
 		{"?", "Show/hide help"},
+		{"PgUp/PgDn", "Scroll"},
 		{"Esc", "Go back"},
 	}
 	for _, bind := range globalBindings {
@@ -556,6 +606,10 @@ func (a App) renderHeader() string {
 
 func (a App) renderFooter() string {
 	hints := a.footerHints()
+	if a.viewport.TotalLineCount() > a.viewport.VisibleLineCount() {
+		pct := a.viewport.ScrollPercent()
+		hints += fmt.Sprintf(" | PgUp/PgDn: scroll (%d%%)", int(pct*100))
+	}
 	return FooterStyle().Width(a.width).Render(hints)
 }
 
@@ -591,6 +645,7 @@ func (a App) footerHints() string {
 func (a App) navigateTo(screen messages.Screen) (tea.Model, tea.Cmd) {
 	a.screenHistory = append(a.screenHistory, a.currentScreen)
 	a.currentScreen = screen
+	a.viewport.GotoTop()
 
 	var cmds []tea.Cmd
 
@@ -633,6 +688,7 @@ func (a App) goBack() (tea.Model, tea.Cmd) {
 	prev := a.screenHistory[len(a.screenHistory)-1]
 	a.screenHistory = a.screenHistory[:len(a.screenHistory)-1]
 	a.currentScreen = prev
+	a.viewport.GotoTop()
 
 	return a, nil
 }

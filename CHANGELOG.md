@@ -5,7 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.2.1] - 2026-03-31
+
+### Added
+- File picker multi-select via Space key — toggle individual files, view selection list, press `b` to batch
+- App-level viewport scrolling — all screens now scroll with PgUp/PgDn and mouse wheel when content overflows the terminal
+- Scroll percentage indicator in footer bar when content is clipped
+
+### Fixed
+- Space key in file picker was advertised in hints but had no handler — multi-select was unreachable from browser mode
 
 ## [0.2.0] - 2026-03-22
 
@@ -49,6 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Help overlay (`?` key) on all screens
 - GoReleaser build pipeline with GitHub Actions CI/CD
 
-[Unreleased]: https://github.com/jparkerweb/shrinkray/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/jparkerweb/shrinkray/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/jparkerweb/shrinkray/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/jparkerweb/shrinkray/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/jparkerweb/shrinkray/releases/tag/v0.1.0
