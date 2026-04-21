@@ -47,3 +47,7 @@ specs--completed/
 # Environment
 .env
 .env.local
+
+# video artifacts
+videos/**/*.mp3
+videos/**/*.mp4

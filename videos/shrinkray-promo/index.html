@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body {
+        width: 1920px; height: 1080px; overflow: hidden;
+        background: #1A1A2E;
+        font-family: 'Inter', system-ui, sans-serif;
+        color: #E8E8F0;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* ────────────── Layout primitives ────────────── */
+      .scene {
+        position: absolute; inset: 0;
+        width: 1920px; height: 1080px;
+        overflow: hidden;
+      }
+      .scene-content {
+        position: relative;
+        width: 100%; height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 100px 140px;
+        gap: 28px;
+        box-sizing: border-box;
+      }
+
+      /* ────────────── Ambient decoratives ────────────── */
+      .glow {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(100px);
+        pointer-events: none;
+        opacity: 0.55;
+      }
+      .glow-purple { background: #7B2FF7; }
+      .glow-pink   { background: #FF2D95; }
+      .glow-cyan   { background: #00F0FF; }
+
+      .grid-bg {
+        position: absolute; inset: 0;
+        background-image:
+          linear-gradient(rgba(123, 47, 247, 0.08) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(123, 47, 247, 0.08) 1px, transparent 1px);
+        background-size: 80px 80px;
+        pointer-events: none;
+      }
+
+      .accent-line {
+        position: absolute; left: 140px; right: 140px; height: 2px;
+        background: linear-gradient(90deg, transparent, #7B2FF7 20%, #FF2D95 50%, #00F0FF 80%, transparent);
+        opacity: 0.7;
+      }
+
+      .brand-gradient {
+        background: linear-gradient(135deg, #7B2FF7 0%, #FF2D95 50%, #00F0FF 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent;
+      }
+
+      /* ────────────── Scene 1 — Brand intro ────────────── */
+      #scene-1 .bolt {
+        font-size: 240px;
+        line-height: 1;
+        filter: drop-shadow(0 0 40px rgba(123, 47, 247, 0.7));
+      }
+      #scene-1 .wordmark {
+        font-size: 200px;
+        font-weight: 900;
+        letter-spacing: -6px;
+        line-height: 0.95;
+      }
+      #scene-1 .tagline {
+        font-size: 44px;
+        font-weight: 500;
+        color: #9999B3;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+      }
+      #scene-1 .divider {
+        width: 280px; height: 3px;
+        background: linear-gradient(90deg, #7B2FF7, #FF2D95, #00F0FF);
+        border-radius: 2px;
+      }
+
+      /* ────────────── Scene 2 — Compression demo ────────────── */
+      #scene-2 .kicker {
+        font-size: 28px; font-weight: 600; letter-spacing: 6px;
+        color: #00F0FF; text-transform: uppercase;
+      }
+      #scene-2 .headline {
+        font-size: 130px; font-weight: 800; letter-spacing: -4px;
+        text-align: center; line-height: 1;
+      }
+      #scene-2 .demo-row {
+        display: flex; align-items: center; gap: 80px; margin-top: 40px;
+      }
+      .file-box {
+        width: 300px; padding: 36px 28px;
+        background: #25253E;
+        border: 2px solid rgba(123, 47, 247, 0.4);
+        border-radius: 18px;
+        display: flex; flex-direction: column; align-items: center; gap: 14px;
+        box-shadow: 0 0 40px rgba(123, 47, 247, 0.2);
+      }
+      .file-box.shrunk {
+        transform: scale(0.55);
+        border-color: rgba(0, 240, 255, 0.6);
+        box-shadow: 0 0 40px rgba(0, 240, 255, 0.35);
+      }
+      .file-icon { font-size: 72px; }
+      .file-size {
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 700; font-size: 44px;
+        color: #E8E8F0;
+      }
+      .file-size.small { color: #00F0FF; }
+      .file-label {
+        font-size: 18px; color: #9999B3; letter-spacing: 2px; text-transform: uppercase;
+      }
+      #scene-2 .ray {
+        position: relative;
+        width: 220px; height: 14px;
+        background: linear-gradient(90deg, #7B2FF7, #FF2D95, #00F0FF);
+        border-radius: 10px;
+        box-shadow: 0 0 30px rgba(255, 45, 149, 0.7), 0 0 60px rgba(0, 240, 255, 0.4);
+      }
+      #scene-2 .ray::after {
+        content: '';
+        position: absolute; right: -22px; top: 50%; transform: translateY(-50%);
+        width: 0; height: 0;
+        border-left: 24px solid #00F0FF;
+        border-top: 18px solid transparent;
+        border-bottom: 18px solid transparent;
+        filter: drop-shadow(0 0 12px #00F0FF);
+      }
+
+      /* ────────────── Scene 3 — 18 presets ────────────── */
+      #scene-3 .title-row {
+        display: flex; align-items: baseline; gap: 28px;
+      }
+      #scene-3 .big-number {
+        font-size: 220px; font-weight: 900; line-height: 0.9; letter-spacing: -8px;
+      }
+      #scene-3 .title-text {
+        font-size: 72px; font-weight: 800; letter-spacing: -2px;
+      }
+      #scene-3 .title-sub {
+        font-size: 26px; color: #9999B3; letter-spacing: 4px; text-transform: uppercase;
+        margin-bottom: 10px;
+      }
+      #scene-3 .preset-grid {
+        display: grid; grid-template-columns: repeat(3, 1fr);
+        gap: 40px; margin-top: 60px; width: 100%;
+      }
+      .preset-col {
+        background: #25253E; border-radius: 16px;
+        padding: 32px 28px;
+        border-top: 3px solid var(--col-accent, #7B2FF7);
+      }
+      .preset-col-title {
+        font-size: 22px; font-weight: 700;
+        color: #E8E8F0;
+        letter-spacing: 3px; text-transform: uppercase;
+        margin-bottom: 20px;
+        padding-left: 14px;
+        border-left: 4px solid var(--col-accent);
+      }
+      .preset-list {
+        display: flex; flex-direction: column; gap: 12px;
+      }
+      .preset-item {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 26px; font-weight: 500;
+        color: #E8E8F0;
+      }
+      .preset-item .dim { color: #B4B4CC; font-size: 20px; }
+
+      /* ────────────── Scene 4 — HW accel + batch ────────────── */
+      #scene-4 .stats-row {
+        display: flex; gap: 80px; align-items: center;
+      }
+      .stat-block { text-align: center; }
+      .stat-number {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 220px; font-weight: 800;
+        line-height: 1; letter-spacing: -8px;
+      }
+      .stat-unit {
+        font-size: 60px; font-weight: 700; color: #E8E8F0;
+      }
+      .stat-label {
+        font-size: 22px; color: #9999B3; letter-spacing: 4px; text-transform: uppercase;
+        margin-top: 12px;
+      }
+      .stat-divider {
+        width: 3px; height: 240px;
+        background: linear-gradient(180deg, transparent, #FF2D95, transparent);
+      }
+      #scene-4 .hw-badges {
+        display: flex; gap: 18px; margin-top: 40px; justify-content: center;
+      }
+      .hw-badge {
+        padding: 14px 26px;
+        background: rgba(37, 37, 62, 0.8);
+        border: 1.5px solid rgba(0, 240, 255, 0.4);
+        border-radius: 999px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 22px; font-weight: 600;
+        color: #00F0FF;
+      }
+      #scene-4 .main-title {
+        font-size: 60px; font-weight: 800; letter-spacing: -1px;
+        margin-bottom: 40px; text-align: center;
+      }
+
+      /* ────────────── Scene 5 — Terminal + platforms ────────────── */
+      #scene-5 .term-title {
+        font-size: 28px; color: #C8C8DC; letter-spacing: 6px; text-transform: uppercase;
+        margin-bottom: 8px;
+      }
+      .terminal {
+        width: 1200px;
+        background: #10101C;
+        border: 1.5px solid rgba(108, 108, 138, 0.4);
+        border-radius: 16px;
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5), 0 0 60px rgba(123, 47, 247, 0.15);
+        overflow: hidden;
+      }
+      .term-header {
+        display: flex; align-items: center; gap: 10px;
+        padding: 16px 22px;
+        background: #1A1A2E;
+        border-bottom: 1px solid rgba(108, 108, 138, 0.25);
+      }
+      .term-dot { width: 14px; height: 14px; border-radius: 50%; }
+      .term-dot.r { background: #FF4444; }
+      .term-dot.y { background: #FFAB00; }
+      .term-dot.g { background: #39FF14; }
+      .term-body {
+        padding: 32px 36px 36px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 28px; line-height: 1.6;
+      }
+      .term-line { white-space: nowrap; }
+      .term-prompt { color: #FF2D95; }
+      .term-cmd { color: #E8E8F0; }
+      .term-flag { color: #00F0FF; }
+      .term-val { color: #39FF14; }
+      .term-comment { color: #9292B4; }
+      .term-progress {
+        display: flex; align-items: center; gap: 18px; margin-top: 18px;
+      }
+      .progress-bar {
+        flex: 1; height: 10px;
+        background: #25253E; border-radius: 10px; overflow: hidden;
+      }
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #7B2FF7, #FF2D95, #00F0FF);
+        border-radius: 10px;
+      }
+      .progress-pct { color: #00F0FF; font-weight: 700; min-width: 80px; text-align: right; }
+      .platforms {
+        display: flex; gap: 22px; margin-top: 36px; justify-content: center; flex-wrap: wrap;
+      }
+      .platform-chip {
+        padding: 12px 22px;
+        background: rgba(37, 37, 62, 0.7);
+        border: 1.5px solid rgba(255, 45, 149, 0.35);
+        border-radius: 999px;
+        font-size: 22px; font-weight: 600;
+        color: #E8E8F0;
+        display: flex; align-items: center; gap: 10px;
+      }
+
+      /* ────────────── Scene 6 — CTA ────────────── */
+      #scene-6 .cta-tagline {
+        font-size: 140px; font-weight: 900;
+        letter-spacing: -5px; text-align: center;
+        line-height: 1;
+      }
+      #scene-6 .cta-bolt {
+        font-size: 120px;
+        filter: drop-shadow(0 0 30px rgba(255, 45, 149, 0.7));
+      }
+      #scene-6 .cta-install {
+        margin-top: 40px;
+        padding: 24px 40px;
+        background: #10101C;
+        border: 1.5px solid rgba(0, 240, 255, 0.4);
+        border-radius: 14px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 32px;
+        color: #E8E8F0;
+      }
+      #scene-6 .cta-install .dollar { color: #FF2D95; margin-right: 14px; }
+      #scene-6 .cta-install .cmd { color: #00F0FF; }
+      #scene-6 .cta-url {
+        margin-top: 26px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 26px;
+        color: #9999B3;
+        letter-spacing: 1px;
+      }
+      #scene-6 .cta-url .hl { color: #E8E8F0; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="27"
+         data-width="1920" data-height="1080">
+
+      <!-- ═════════════ Background music ═════════════ -->
+      <audio id="bgm" class="clip" src="music.mp3"
+             data-start="0" data-duration="27" data-track-index="0" data-volume="0.8"></audio>
+
+      <!-- ═════════════ SCENE 1 — Brand Intro (0 → 4.5s) ═════════════ -->
+      <div id="scene-1" class="scene clip" data-start="0" data-duration="4.5" data-track-index="1">
+        <div class="glow glow-purple" style="width:700px;height:700px;top:-200px;left:-150px;"></div>
+        <div class="glow glow-pink"   style="width:600px;height:600px;bottom:-200px;right:-100px;"></div>
+        <div class="grid-bg"></div>
+
+        <div class="scene-content">
+          <div id="s1-bolt" class="bolt">⚡</div>
+          <h1 id="s1-wordmark" class="wordmark brand-gradient">SHRINKRAY</h1>
+          <div id="s1-divider" class="divider"></div>
+          <div id="s1-tagline" class="tagline">Less bytes, same vibes.</div>
+        </div>
+      </div>
+
+      <!-- ═════════════ SCENE 2 — Compression Demo (4.2 → 9.2s) ═════════════ -->
+      <div id="scene-2" class="scene clip" data-start="4.2" data-duration="5.0" data-track-index="2">
+        <div class="glow glow-cyan"   style="width:700px;height:700px;top:50%;right:-250px;transform:translateY(-50%);opacity:0.35;"></div>
+        <div class="glow glow-purple" style="width:600px;height:600px;top:50%;left:-250px;transform:translateY(-50%);opacity:0.4;"></div>
+        <div class="grid-bg" style="opacity:0.5;"></div>
+
+        <div class="scene-content">
+          <div id="s2-kicker" class="kicker">Powered by FFmpeg</div>
+          <h2 id="s2-headline" class="headline">
+            Compress video.<br>
+            <span class="brand-gradient">Keep the vibes.</span>
+          </h2>
+
+          <div class="demo-row">
+            <div id="s2-big" class="file-box">
+              <div class="file-icon">🎬</div>
+              <div class="file-size">2.4 GB</div>
+              <div class="file-label">source</div>
+            </div>
+            <div id="s2-ray" class="ray"></div>
+            <div id="s2-small" class="file-box shrunk">
+              <div class="file-icon">🎬</div>
+              <div class="file-size small">312 MB</div>
+              <div class="file-label">shrunk</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═════════════ SCENE 3 — 18 Presets (9.0 → 14.3s) ═════════════ -->
+      <div id="scene-3" class="scene clip" data-start="9.0" data-duration="5.3" data-track-index="3">
+        <div class="glow glow-pink"   style="width:700px;height:700px;top:-250px;right:-200px;opacity:0.45;"></div>
+        <div class="glow glow-purple" style="width:500px;height:500px;bottom:-150px;left:-100px;opacity:0.45;"></div>
+        <div class="accent-line" style="top:120px;"></div>
+
+        <div class="scene-content" style="padding-top:120px;">
+          <div id="s3-sub" class="title-sub">Smart encoding</div>
+          <div class="title-row">
+            <span id="s3-num" class="big-number brand-gradient">18</span>
+            <span id="s3-text" class="title-text">Built-in presets</span>
+          </div>
+
+          <div class="preset-grid">
+            <div class="preset-col s3-col" style="--col-accent:#7B2FF7;">
+              <div class="preset-col-title">Quality</div>
+              <div class="preset-list">
+                <div class="preset-item s3-item">lossless <span class="dim">· ultra</span></div>
+                <div class="preset-item s3-item">high <span class="dim">· balanced</span></div>
+                <div class="preset-item s3-item">compact <span class="dim">· tiny</span></div>
+              </div>
+            </div>
+            <div class="preset-col s3-col" style="--col-accent:#FF2D95;">
+              <div class="preset-col-title">Purpose</div>
+              <div class="preset-list">
+                <div class="preset-item s3-item">web <span class="dim">· email</span></div>
+                <div class="preset-item s3-item">archive <span class="dim">· slideshow</span></div>
+                <div class="preset-item s3-item">4k-to-1080</div>
+              </div>
+            </div>
+            <div class="preset-col s3-col" style="--col-accent:#00F0FF;">
+              <div class="preset-col-title">Platform</div>
+              <div class="preset-list">
+                <div class="preset-item s3-item">discord <span class="dim">· youtube</span></div>
+                <div class="preset-item s3-item">tiktok <span class="dim">· instagram</span></div>
+                <div class="preset-item s3-item">twitter <span class="dim">· whatsapp</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═════════════ SCENE 4 — HW Accel + Batch (14.0 → 19.0s) ═════════════ -->
+      <div id="scene-4" class="scene clip" data-start="14.0" data-duration="5.0" data-track-index="4">
+        <div class="glow glow-cyan"   style="width:600px;height:600px;top:-150px;left:-150px;opacity:0.4;"></div>
+        <div class="glow glow-pink"   style="width:500px;height:500px;bottom:-100px;right:-100px;opacity:0.45;"></div>
+        <div class="grid-bg" style="opacity:0.6;"></div>
+
+        <div class="scene-content">
+          <h2 id="s4-title" class="main-title">Hardware-accelerated. <span class="brand-gradient">Built for batches.</span></h2>
+
+          <div class="stats-row">
+            <div class="stat-block">
+              <div id="s4-stat1" class="stat-number brand-gradient">5–8<span class="stat-unit">×</span></div>
+              <div id="s4-lbl1" class="stat-label">Faster encoding</div>
+            </div>
+            <div id="s4-divider" class="stat-divider"></div>
+            <div class="stat-block">
+              <div id="s4-stat2" class="stat-number" style="color:#00F0FF;">∞</div>
+              <div id="s4-lbl2" class="stat-label">Parallel workers</div>
+            </div>
+          </div>
+
+          <div class="hw-badges">
+            <div class="hw-badge s4-badge">NVIDIA NVENC</div>
+            <div class="hw-badge s4-badge">AMD AMF</div>
+            <div class="hw-badge s4-badge">Intel QSV</div>
+            <div class="hw-badge s4-badge">Apple VideoToolbox</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═════════════ SCENE 5 — Terminal + Platforms (18.7 → 23.3s) ═════════════ -->
+      <div id="scene-5" class="scene clip" data-start="18.7" data-duration="4.6" data-track-index="5">
+        <div class="glow glow-purple" style="width:700px;height:700px;top:-200px;right:-150px;opacity:0.4;"></div>
+        <div class="glow glow-cyan"   style="width:500px;height:500px;bottom:-100px;left:-100px;opacity:0.4;"></div>
+
+        <div class="scene-content" style="gap:16px;">
+          <div id="s5-kicker" class="term-title">One command. Every codec.</div>
+
+          <div id="s5-term" class="terminal">
+            <div class="term-header">
+              <div class="term-dot r"></div>
+              <div class="term-dot y"></div>
+              <div class="term-dot g"></div>
+            </div>
+            <div class="term-body">
+              <div class="term-line s5-line">
+                <span class="term-prompt">$</span>
+                <span class="term-cmd"> shrinkray</span>
+                <span class="term-flag"> -i</span>
+                <span class="term-val"> ./clips/</span>
+                <span class="term-flag"> -p</span>
+                <span class="term-val"> balanced</span>
+                <span class="term-flag"> -j</span>
+                <span class="term-val"> 4</span>
+              </div>
+              <div class="term-line s5-line" style="margin-top:6px;">
+                <span class="term-comment"># analyzing · hw-accel detected · encoding 4 files…</span>
+              </div>
+              <div id="s5-prog" class="term-progress">
+                <div class="progress-bar">
+                  <div id="s5-fill" class="progress-fill" style="width:0%;"></div>
+                </div>
+                <div id="s5-pct" class="progress-pct">0%</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="platforms">
+            <div class="platform-chip s5-chip">💬 Discord</div>
+            <div class="platform-chip s5-chip">▶ YouTube</div>
+            <div class="platform-chip s5-chip">🎵 TikTok</div>
+            <div class="platform-chip s5-chip">𝕏 Twitter</div>
+            <div class="platform-chip s5-chip">📸 Instagram</div>
+            <div class="platform-chip s5-chip">💚 WhatsApp</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═════════════ SCENE 6 — CTA (22.9 → 27s) ═════════════ -->
+      <div id="scene-6" class="scene clip" data-start="22.9" data-duration="4.1" data-track-index="6">
+        <div class="glow glow-purple" style="width:900px;height:900px;top:-200px;left:-200px;opacity:0.55;"></div>
+        <div class="glow glow-pink"   style="width:700px;height:700px;bottom:-150px;right:-150px;opacity:0.55;"></div>
+        <div class="glow glow-cyan"   style="width:500px;height:500px;top:50%;left:50%;transform:translate(-50%,-50%);opacity:0.25;"></div>
+
+        <div class="scene-content">
+          <div id="s6-bolt" class="cta-bolt">⚡</div>
+          <h1 id="s6-tagline" class="cta-tagline">
+            <span class="brand-gradient">Less bytes.</span><br>
+            Same vibes.
+          </h1>
+          <div id="s6-install" class="cta-install">
+            <span class="dollar">$</span><span class="cmd">go install github.com/jparkerweb/shrinkray/cmd/shrinkray@latest</span>
+          </div>
+          <div id="s6-url" class="cta-url">
+            <span class="hl">github.com/jparkerweb/shrinkray</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // ═════════════ SCENE 1 (0 → 4.5s) ═════════════
+      tl.from("#scene-1", { opacity: 0, duration: 0.4, ease: "power2.out" }, 0);
+      tl.from("#s1-bolt", { scale: 0.2, opacity: 0, rotation: -40, duration: 0.7, ease: "back.out(1.8)" }, 0.15);
+      tl.from("#s1-wordmark", { y: 80, opacity: 0, duration: 0.7, ease: "expo.out" }, 0.45);
+      tl.from("#s1-divider", { scaleX: 0, opacity: 0, duration: 0.5, ease: "power3.out", transformOrigin: "center" }, 0.9);
+      tl.from("#s1-tagline", { y: 30, opacity: 0, duration: 0.5, ease: "power2.out" }, 1.1);
+      // ambient: subtle float on bolt
+      tl.to("#s1-bolt", { y: -10, duration: 1.5, ease: "sine.inOut", yoyo: true, repeat: 1 }, 1.2);
+
+      // ═════════════ SCENE 2 (4.2 → 9.2s) ═════════════
+      const s2 = 4.2;
+      tl.from("#scene-2", { opacity: 0, duration: 0.5, ease: "power2.out" }, s2);
+      tl.from("#s2-kicker",   { y: -20, opacity: 0, duration: 0.45, ease: "power3.out" }, s2 + 0.25);
+      tl.from("#s2-headline", { y: 40, opacity: 0, duration: 0.6, ease: "expo.out" }, s2 + 0.4);
+      tl.from("#s2-big",   { x: -100, opacity: 0, scale: 0.85, duration: 0.6, ease: "back.out(1.5)" }, s2 + 0.9);
+      tl.from("#s2-ray",   { scaleX: 0, opacity: 0, duration: 0.5, ease: "power3.out", transformOrigin: "left center" }, s2 + 1.25);
+      tl.from("#s2-small", { x: 100, opacity: 0, scale: 0.4, duration: 0.7, ease: "back.out(1.7)" }, s2 + 1.5);
+      // Ray pulse + shrink effect
+      tl.to("#s2-ray", { boxShadow: "0 0 60px rgba(255, 45, 149, 1), 0 0 120px rgba(0, 240, 255, 0.8)", duration: 0.4, yoyo: true, repeat: 3 }, s2 + 2.0);
+
+      // ═════════════ SCENE 3 (9.0 → 14.3s) ═════════════
+      const s3 = 9.0;
+      tl.from("#scene-3", { opacity: 0, duration: 0.5, ease: "power2.out" }, s3);
+      tl.from("#s3-sub", { y: -20, opacity: 0, duration: 0.4, ease: "power2.out" }, s3 + 0.3);
+      tl.from("#s3-num", { scale: 0.4, opacity: 0, duration: 0.7, ease: "back.out(2)" }, s3 + 0.45);
+      tl.from("#s3-text", { x: -40, opacity: 0, duration: 0.55, ease: "expo.out" }, s3 + 0.7);
+      tl.from(".s3-col", { y: 80, opacity: 0, duration: 0.6, stagger: 0.15, ease: "power3.out" }, s3 + 1.0);
+      tl.from(".s3-item", { x: -20, opacity: 0, duration: 0.35, stagger: 0.06, ease: "power2.out" }, s3 + 1.5);
+
+      // ═════════════ SCENE 4 (14.0 → 19.0s) ═════════════
+      const s4 = 14.0;
+      tl.from("#scene-4", { opacity: 0, duration: 0.5, ease: "power2.out" }, s4);
+      tl.from("#s4-title", { y: 40, opacity: 0, duration: 0.6, ease: "expo.out" }, s4 + 0.3);
+      tl.from("#s4-stat1", { scale: 0.5, opacity: 0, duration: 0.7, ease: "back.out(1.8)" }, s4 + 0.7);
+      tl.from("#s4-lbl1",  { y: 20, opacity: 0, duration: 0.4, ease: "power2.out" }, s4 + 1.0);
+      tl.from("#s4-divider", { scaleY: 0, opacity: 0, duration: 0.5, ease: "power3.out", transformOrigin: "center" }, s4 + 1.1);
+      tl.from("#s4-stat2", { scale: 0.5, opacity: 0, duration: 0.7, ease: "back.out(1.8)" }, s4 + 1.25);
+      tl.from("#s4-lbl2",  { y: 20, opacity: 0, duration: 0.4, ease: "power2.out" }, s4 + 1.55);
+      tl.from(".s4-badge", { y: 20, opacity: 0, duration: 0.4, stagger: 0.08, ease: "power2.out" }, s4 + 1.8);
+      // infinity symbol pulse
+      tl.to("#s4-stat2", { scale: 1.08, duration: 0.9, yoyo: true, repeat: 2, ease: "sine.inOut", overwrite: "auto" }, s4 + 2.3);
+
+      // ═════════════ SCENE 5 (18.7 → 23.3s) ═════════════
+      const s5 = 18.7;
+      tl.from("#scene-5",    { opacity: 0, duration: 0.5, ease: "power2.out" }, s5);
+      tl.from("#s5-kicker",  { y: -15, opacity: 0, duration: 0.4, ease: "power2.out" }, s5 + 0.3);
+      tl.from("#s5-term",    { y: 40, opacity: 0, scale: 0.96, duration: 0.6, ease: "expo.out" }, s5 + 0.45);
+      tl.from(".s5-line",    { x: -20, opacity: 0, duration: 0.4, stagger: 0.18, ease: "power2.out" }, s5 + 0.8);
+      tl.from("#s5-prog",    { opacity: 0, duration: 0.3, ease: "power2.out" }, s5 + 1.25);
+      // progress fill animation 1.8s long
+      tl.fromTo("#s5-fill", { width: "0%" }, { width: "100%", duration: 1.8, ease: "power1.inOut" }, s5 + 1.3);
+      // percent counter via innerText tween
+      tl.to({ v: 0 }, {
+        v: 100, duration: 1.8, ease: "power1.inOut",
+        onUpdate: function () {
+          const el = document.getElementById("s5-pct");
+          if (el) el.textContent = Math.round(this.targets()[0].v) + "%";
+        },
+        onStart: function () {
+          const el = document.getElementById("s5-pct");
+          if (el) el.textContent = "0%";
+        }
+      }, s5 + 1.3);
+      tl.from(".s5-chip", { y: 25, opacity: 0, scale: 0.9, duration: 0.4, stagger: 0.06, ease: "back.out(1.5)" }, s5 + 1.5);
+
+      // ═════════════ SCENE 6 (22.9 → 27s) ═════════════
+      const s6 = 22.9;
+      tl.from("#scene-6",    { opacity: 0, duration: 0.5, ease: "power2.out" }, s6);
+      tl.from("#s6-bolt",    { scale: 0.2, opacity: 0, rotation: -30, duration: 0.6, ease: "back.out(1.8)" }, s6 + 0.2);
+      tl.from("#s6-tagline", { y: 50, opacity: 0, duration: 0.7, ease: "expo.out" }, s6 + 0.45);
+      tl.from("#s6-install", { y: 30, opacity: 0, duration: 0.5, ease: "power3.out" }, s6 + 0.9);
+      tl.from("#s6-url",     { y: 20, opacity: 0, duration: 0.4, ease: "power2.out" }, s6 + 1.2);
+      // Bolt subtle glow pulse (ambient)
+      tl.to("#s6-bolt", { scale: 1.08, duration: 0.8, yoyo: true, repeat: 2, ease: "sine.inOut", overwrite: "auto" }, s6 + 1.4);
+      // Final fade (allowed only on final scene)
+      tl.to("#scene-6", { opacity: 0, duration: 0.5, ease: "power2.in" }, 26.5);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
