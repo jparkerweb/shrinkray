@@ -7,9 +7,7 @@ featuring a wizard-style TUI built with Go and Charm's Bubble Tea.
 
 <img src="https://github.com/jparkerweb/shrinkray/blob/main/docs/shrinkray.jpg?raw=true" width="600">
 
-### Watch the demo
-
-[![Shrinkray demo video](https://img.youtube.com/vi/mhFh5wgaruQ/maxresdefault.jpg)](https://www.youtube.com/watch?v=mhFh5wgaruQ)
+### [Watch the promo YouTube video](https://www.youtube.com/watch?v=mhFh5wgaruQ)
 
 ## Features
 
