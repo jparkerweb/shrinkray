@@ -2,10 +2,20 @@
 
 **Less bytes, same vibes.**
 
+<img src="https://github.com/jparkerweb/shrinkray/blob/main/docs/shrinkray.jpg?raw=true" width="600">
+
 A cross-platform CLI video compression tool powered by FFmpeg,  
 featuring a wizard-style TUI built with Go and Charm's Bubble Tea.
 
-<img src="https://github.com/jparkerweb/shrinkray/blob/main/docs/shrinkray.jpg?raw=true" width="600">
+### Maintained by
+<a href="https://www.equilllabs.com">
+  <img src="https://raw.githubusercontent.com/jparkerweb/eQuill-Labs/refs/heads/main/src/static/images/logo-text-outline.png" alt="eQuill Labs" height="40">
+</a>
+
+<br>
+<br>
+
+---
 
 ### [Watch the promo YouTube video](https://www.youtube.com/watch?v=mhFh5wgaruQ)
 
